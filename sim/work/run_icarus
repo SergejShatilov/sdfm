@@ -1,0 +1,89 @@
+#!bin/bash
+
+PROJECTDIR="/home/www/projects/verilog/sdfm"
+CLEARWORKDIR="DISABLE"
+GTKWAVE="DISABLE"
+TESTNAME="example"
+TESTFILE="testbench.v"
+OBJECTFILE="./test.obj"
+WORKDIR="./"
+RTLSRCDIR="../rtl_src/"
+
+
+echo "> configuration..."
+
+
+# Parser parameters
+while getopts "t:o:rg" opt
+do
+  case $opt in
+    r)  CLEARWORKDIR="ENABLE";;
+    g)  GTKWAVE="ENABLE";;
+    t)  TESTNAME=$OPTARG;;
+    o)  OBJECTFILE=$OPTARG;;
+  esac
+done
+
+TESTFILE="../testbenches/$TESTNAME/$TESTFILE"
+
+echo "    PROJECTDIR = $PROJECTDIR"
+echo "    CLEARWORKDIR = ENABLE"
+echo "    GTKWAVE = ENABLE"
+echo "    TESTFILE = $TESTFILE"
+echo "    WORKDIR = $WORKDIR"
+echo "    OBJECTFILE = $OBJECTFILE"
+
+
+# Find sources RTL-implementation
+echo "  Find sources rtl-implementation..."
+echo "    rtl-files:"
+RTLSOURCES=""
+for file in `find $RTLSRCDIR -type f -name "*.v"`
+do
+  echo "      $file"
+  RTLSOURCES="$RTLSOURCES $file"
+done
+echo "  done!"
+
+
+# Clear working directory
+if [ $CLEARWORKDIR = "ENABLE" ]
+then
+  echo "> clear working directory..."
+  rm -rf *.obj log.txt
+  echo "  done!"
+fi
+
+echo "> run compiler iverilog..."
+
+
+# compile and simulation
+if [ -e $TESTFILE ]
+then
+    iverilog -o $OBJECTFILE $TESTFILE #$RTLSOURCES
+else
+  echo "  Error: $TESTFILE: No such file or directory"
+  echo "  canceled!"
+  exit 0
+fi
+
+if [ -e $OBJECTFILE ]
+then
+  echo "  done!"
+  echo "> simulation..."
+  vvp -i -l log.txt $OBJECTFILE
+  echo "  done!"
+else
+  echo "  canceled!"
+  exit 0
+fi
+
+# show gtkwave
+if [ $GTKWAVE = "ENABLE" ]
+then
+  echo "> run gtkwave"
+  gtkwave out.vcd
+fi
+
+exit 0
+
