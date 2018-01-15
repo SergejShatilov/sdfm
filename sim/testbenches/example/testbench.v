@@ -9,7 +9,7 @@
 `define PI 3.14159265359
 
 `ifdef ICARUS
-  `define MODELING_STEP 20
+  `define MODELING_STEP 50
 `else
   `define MODELING_STEP 1
 `endif
@@ -29,7 +29,7 @@ module testbench;
     `ifdef ICARUS
       $dumpfile("out.vcd");
       $dumpvars(0, testbench);
-      #300_000 $finish;
+      #2000_000 $finish;
     `else
       #2000_000 $finish;
     `endif
@@ -184,15 +184,22 @@ module testbench;
     #50_000;
     write(16'h0708, 32'h0000_0003);
     #10_000;
-    write(16'h070C, 32'h0031_A154);
-    write(16'h0710, 32'h0023_D2AC);
+    read(16'h0708);
+    #10_000;
+    write(16'h070C, 32'h0011_003F);
+    write(16'h0710, 32'h0023_D0FF);
     #10_000;
     read(16'h070C);
     read(16'h0710);
     
-    #20_005;
-    //write(16'h0708, 32'h0000_0000);
-    read(16'h0708);
+    #50_000;
+    write(16'h0724, 32'hABCD_6894);
+    write(16'h0728, 32'h1234_53DC);
+    #10_000;
+    read(16'h0724);
+    #500;
+    read(16'h0728);
+    
     
     //write(8'h04, 32'h0304_503F);
   end

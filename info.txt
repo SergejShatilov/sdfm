@@ -1,0 +1,57 @@
+
+====================================================================
+          Register map
+====================================================================
+
+ offset  |  register  |  description
+-------------------------------------------------------------------------
+  0x00   |  IFLG      |  Interrupts flags register
+  0x04   |  IFLGCLR   |  Interrupts flags clear register
+  0x08   |  CTL       |  Control register SDFM
+  0x0C   |  DFPARM0   |  Data filter parameters register for channel 0
+  0x10   |  DFPARM1   |  Data filter parameters register for channel 1
+  0x14   |  CPARM0    |  Comparator parameters register for channel 0
+  0x18   |  CPARM2    |  Comparator parameters register for channel 1
+  0x1C   |  FCTL0     |  FIFO control register for channel 0
+  0x20   |  FCTL1     |  FIFO control register for channel 1
+  0x24   |  FDATA0    |  Filter data register for channel 0
+  0x28   |  FDATA1    |  Filter data register for channel 1
+  0x2C   |  CDATA0    |  Comparator data register for channel 0
+  0x30   |  CDATA1    |  Comparator data register for channel 1
+-------------------------------------------------------------------------
+
+
+
+    Register CTL:
+
+  bit  |  name  |  access  |  reset value  |  description
+---------------------------------------------------------------------
+   0   |  RSTEN |   R/W    |      1(0)     |  System reset enable
+   1   |  CLKEN |   R/W    |      1(0)     |  System clock enable
+---------------------------------------------------------------------
+
+
+
+
+    Register DFPARMx:
+
+  bit  |    name    |  access  |  reset value  |  description
+------------------------------------------------------------------------------------------
+  0-7  |    DOSR    |   R/W    |       8(0)    |  Data oversampling ratio
+------------------------------------------------------------------------------------------
+  8-9  |    MOD     |   R/W    |       2(0)    |  Input mode
+ 10-11 |  reserved  |   RO     |       2(0)    |  reserved
+ 12-15 |    DIV     |   R/W    |       4(0)    |  Ratio system clock dividing for mode 3
+------------------------------------------------------------------------------------------
+  16   |    FEN     |   R/W    |       1(0)    |  Filter enable
+  17   |    AEN     |   R/W    |       1(0)    |  Asknewledge enable
+ 18-19 |  reserved  |   RO     |       2(0)    |  reserved
+ 20-21 |    STF     |   R/W    |       2(0)    |  Structure data filter
+ 22-23 |  reserved  |   RO     |       2(0)    |  reserved
+------------------------------------------------------------------------------------------
+ 24-31 |  reserved  |   RO     |       8(0)    |  reserved
+------------------------------------------------------------------------------------------
+  
+  
+  
+

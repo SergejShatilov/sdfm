@@ -18,6 +18,9 @@ module SDFM
   wire SYSRSTn;   // system reset
   wire SYSCLK;    // system clock
   
+  wire [63:0] filt_data_out;    // filter data output
+  wire [1:0]  filt_data_update; // signal filter data update
+  
   // CTL
   wire reg_rsten; // system reset enable
   wire reg_clken; // system clock enable
@@ -41,33 +44,35 @@ module SDFM
   // Reset and clock unit
   RCU rcu
   (
-    .EXTRSTn(EXTRSTn),
-    .EXTCLK(EXTCLK),
-    .reg_rsten(reg_rsten),
-    .reg_clken(reg_clken),
-    .SYSRSTn(SYSRSTn),
-    .SYSCLK(SYSCLK)
+    .EXTRSTn   (EXTRSTn),
+    .EXTCLK    (EXTCLK),
+    .reg_rsten (reg_rsten),
+    .reg_clken (reg_clken),
+    .SYSRSTn   (SYSRSTn),
+    .SYSCLK    (SYSCLK)
   );
   
   // Registers map
   REGMAP regmap
   (
-    .EXTRSTn(EXTRSTn),
-    .EXTCLK(EXTCLK),
-    .SYSRSTn(SYSRSTn),
-    .SYSCLK(SYSCLK),
-    .WR(WR),
-    .RD(RD),
-    .ADDR(ADDR),
-    .DATA(DATA),
-    .reg_rsten(reg_rsten),
-    .reg_clken(reg_clken),
-    .reg_filtdec(reg_filtdec),
-    .reg_inmode(reg_inmode),
-    .reg_clkdiv(reg_clkdiv),
-    .reg_filten(reg_filten),
-    .reg_filtask(reg_filtask),
-    .reg_filtst(reg_filtst)
+    .EXTRSTn (EXTRSTn),
+    .EXTCLK  (EXTCLK),
+    .SYSRSTn (SYSRSTn),
+    .SYSCLK  (SYSCLK),
+    .WR      (WR),
+    .RD      (RD),
+    .ADDR    (ADDR),
+    .DATA    (DATA),
+    .filt_data_out    (filt_data_out),
+    .filt_data_update (filt_data_update),
+    .reg_rsten   (reg_rsten),
+    .reg_clken   (reg_clken),
+    .reg_filtdec (reg_filtdec),
+    .reg_inmode  (reg_inmode),
+    .reg_clkdiv  (reg_clkdiv),
+    .reg_filten  (reg_filten),
+    .reg_filtask (reg_filtask),
+    .reg_filtst  (reg_filtst)
   );
 
 
@@ -79,15 +84,18 @@ module SDFM
         begin : SD_CHANNEL
           CHANNEL channel
           (
-            .SYSRSTn(SYSRSTn),
-            .SYSCLK(SYSCLK),
-            .DSDIN(DSDIN[i]),
-            .SDCLK(SDCLK[i]),
-            .reg_inmode(reg_inmode[1 + i * 2 : i * 2]),
-            .reg_clkdiv(reg_clkdiv[3 + i * 4 : i * 4])
-            //.reg_FPARM(reg_FPARM[31 + i * 32 : i * 32]),
-            //.fifo_data(fifo_data[31 + i * 32 : i * 32]),
-            //.data_valid(data_valid[i])
+            .SYSRSTn (SYSRSTn),
+            .SYSCLK  (SYSCLK),
+            .DSDIN   (DSDIN[i]),
+            .SDCLK   (SDCLK[i]),
+            .reg_filtdec (reg_filtdec [7 + i * 8 : i * 8]),
+            .reg_inmode  (reg_inmode  [1 + i * 2 : i * 2]),
+            .reg_clkdiv  (reg_clkdiv  [3 + i * 4 : i * 4]),
+            .reg_filten  (reg_filten  [i]),
+            .reg_filtask (reg_filtask [i]),
+            .reg_filtst  (reg_filtst  [1 + i * 2 : i * 2]),
+            .filt_data_out    (filt_data_out   [31 + 32 * i : 32 * i]),
+            .filt_data_update (filt_data_update[i])
           );
         end
     end

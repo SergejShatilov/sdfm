@@ -19,7 +19,7 @@ module ICU
 
   assign sd_dsd_in = DSDIN;   //FIXME: add modes
   
-  assign sd_clk_sd = (reg_inmode == 2'b00) ? SDCLK : 1'b0; //FIXME: add modes
+  assign sd_clk_in = (reg_inmode == 2'b00) ? SDCLK : 1'b0; //FIXME: add modes
 
 
 
