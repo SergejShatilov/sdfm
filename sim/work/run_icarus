@@ -7,7 +7,7 @@ TESTNAME="example"
 TESTFILE="testbench.v"
 OBJECTFILE="./test.obj"
 WORKDIR="./"
-RTLSRCDIR="../rtl_src/"
+RTLSRCDIR="../../rtl_src/"
 
 
 echo "> configuration..."
@@ -60,7 +60,7 @@ echo "> run compiler iverilog..."
 # compile and simulation
 if [ -e $TESTFILE ]
 then
-    iverilog -o $OBJECTFILE $TESTFILE #$RTLSOURCES
+    iverilog -o $OBJECTFILE $TESTFILE $RTLSOURCES
 else
   echo "  Error: $TESTFILE: No such file or directory"
   echo "  canceled!"

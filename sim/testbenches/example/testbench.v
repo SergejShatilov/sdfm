@@ -112,22 +112,15 @@ module testbench;
   `include "../testbenches/example/tb_sdm/tb_sdm_1.v"
   `include "../testbenches/example/tb_sdm/tb_math.v"
     
-/*
-
- 
-
-
 
   //=================================
   // Demodulator
-
   wire [1:0]  DSDIN;
   wire [1:0]  SDCLK;
-
   wire [31:0] RDATA;
   wire        IRQ;
   reg         RnW;
-  reg  [7:0]  ADDR;
+  reg  [15:0] ADDR;
   reg  [31:0] WDATA;
   wire [31:0] DATA;
   reg         WR;
@@ -152,53 +145,57 @@ module testbench;
     .IRQ(IRQ)
   );
 
-
+  task init;
+    begin
+      WR <= 1'b0;
+      RD <= 1'b0;
+      ADDR <= {16{1'bz}};
+    end
+  endtask
+  
+  task write(input [15:0] addr, input [31:0] data);
+    begin
+      //#50_000;
+      WDATA <= data;
+      #10;
+      ADDR <= addr;
+      WR   <= 1'b1; #10;
+      WR   <= 1'b0;
+      ADDR <= {16{1'bz}};
+    end
+  endtask
+  
+  task read(input [16:0] addr);
+    begin
+      //#50_000;
+      ADDR <= addr;
+      RD <= 1'b1; #10;
+      RD <= 1'b0;
+      ADDR <= {16{1'bz}};
+    end
+  endtask
+  
+  
   //================================
   // Init
-
   initial begin
     init();
-    #160_005;
-    write(8'h00, 32'h0000_0003);
-    write(8'h04, 32'h0304_503F);
-
-
-  end
-
-task write(input [7:0] addr, input [31:0] data);
-  begin
+    //#160_005;
     #50_000;
-    WDATA <= data;
-    #10;
-    ADDR <= addr;
-    WR   <= 1'b1; #10;
-    WR   <= 1'b0;
-    ADDR <= {8{1'bz}};
+    write(16'h0708, 32'h0000_0003);
+    #10_000;
+    write(16'h070C, 32'h0031_A154);
+    write(16'h0710, 32'h0023_D2AC);
+    #10_000;
+    read(16'h070C);
+    read(16'h0710);
+    
+    #20_005;
+    //write(16'h0708, 32'h0000_0000);
+    read(16'h0708);
+    
+    //write(8'h04, 32'h0304_503F);
   end
-endtask
-
-
-task read(input [7:0] addr);
-  begin
-    #50_000;
-    ADDR <= addr;
-    RD <= 1'b1; #10;
-    RD <= 1'b0;
-    ADDR <= {8{1'bz}};
-  end
-endtask
-
-
-task init();
-  begin
-    WR <= 1'b0;
-    RD <= 1'b0;
-    ADDR <= {8{1'bz}};
-  end
-endtask
-
-
-*/
 
 endmodule
  
