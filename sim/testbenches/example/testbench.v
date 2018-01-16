@@ -29,7 +29,7 @@ module testbench;
     `ifdef ICARUS
       $dumpfile("out.vcd");
       $dumpvars(0, testbench);
-      #2000_000 $finish;
+      #500_000 $finish;
     `else
       #2000_000 $finish;
     `endif
@@ -186,8 +186,8 @@ module testbench;
     #10_000;
     read(16'h0708);
     #10_000;
-    write(16'h070C, 32'h0011_003F);
-    write(16'h0710, 32'h0023_D0FF);
+    write(16'h070C, 32'h0511_00FF);
+    write(16'h0710, 32'h0323_D0FF);
     #10_000;
     read(16'h070C);
     read(16'h0710);

@@ -32,15 +32,11 @@ module SDFM
   wire [1:0]  reg_filten;   // data filter enable
   wire [1:0]  reg_filtask;  // data filter asknewledge enable
   wire [3:0]  reg_filtst;   // data filter structure
+  wire [9:0]  reg_filtsh;   // value shift bits for data filter
   
+
   
-  //wire [31:0] reg_CTL;
-  //wire [63:0] reg_FPARM;
-
-  //wire [63:0] fifo_data;
- // wire [1:0]  data_valid;
-
-
+  //===========================================================================================
   // Reset and clock unit
   RCU rcu
   (
@@ -52,6 +48,9 @@ module SDFM
     .SYSCLK    (SYSCLK)
   );
   
+  
+  
+  //===========================================================================================
   // Registers map
   REGMAP regmap
   (
@@ -72,10 +71,13 @@ module SDFM
     .reg_clkdiv  (reg_clkdiv),
     .reg_filten  (reg_filten),
     .reg_filtask (reg_filtask),
-    .reg_filtst  (reg_filtst)
+    .reg_filtst  (reg_filtst),
+    .reg_filtsh  (reg_filtsh)
   );
 
-
+  
+  
+  //===========================================================================================
   // Sigma-delta demodulator channels
   genvar i;
   generate
@@ -94,11 +96,14 @@ module SDFM
             .reg_filten  (reg_filten  [i]),
             .reg_filtask (reg_filtask [i]),
             .reg_filtst  (reg_filtst  [1 + i * 2 : i * 2]),
+            .reg_filtsh  (reg_filtsh  [4 + i * 5 : i * 5]),
             .filt_data_out    (filt_data_out   [31 + 32 * i : 32 * i]),
             .filt_data_update (filt_data_update[i])
           );
         end
     end
   endgenerate
+  
+  
 
 endmodule
