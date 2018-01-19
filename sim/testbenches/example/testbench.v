@@ -126,9 +126,14 @@ module testbench;
   reg         WR;
   reg         RD;
 
-  assign DSDIN = {SDM_out_1, SDM_out_0};
-  assign SDCLK = {SDCLK_1, SDCLK_0};
+  //assign DSDIN = {SDM_out_1, SDM_out_0};
+  //assign SDCLK = {SDCLK_1, SDCLK_0};
+  
+  // for mode 2 (manchester mode)
+  assign DSDIN = {(SDM_out_1 ^ SDCLK_1), (SDM_out_0 ^ SDCLK_0)};
+  assign SDCLK = 2'b00;
 
+  
   assign DATA = WR ? WDATA : {32{1'bz}};
   assign RDATA = RD ? DATA : {32{1'b0}};
 
@@ -186,7 +191,7 @@ module testbench;
     #10_000;
     read(16'h0708);
     #10_000;
-    write(16'h070C, 32'h0511_00FF);
+    write(16'h070C, 32'h0511_02FF);
     write(16'h0710, 32'h0323_D0FF);
     #10_000;
     read(16'h070C);
