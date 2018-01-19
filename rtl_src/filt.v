@@ -6,9 +6,11 @@ module FILT
 (
   input  wire        SYSRSTn,           // system reset
   input  wire        SYSCLK,            // system clock
-  input  wire        sd_dsd_in,         // new direct stream data input
-  input  wire        sd_clk_in,         // new sigma-delta clock synchronization
+  input  wire        DSDIN,             // direct stream data input
+  input  wire        SDCLK,             // sigma-delta clock synchronization
   
+  input  wire [1:0]  reg_filtmode,      // input mode
+  input  wire [3:0]  reg_filtdiv,       // ratio system clock dividing for mode 3
   input  wire [7:0]  reg_filtdec,       // filter decimation ratio (oversampling ratio)
   input  wire        reg_filten,        // data filter enable
   input  wire [1:0]  reg_filtst,        // data filter structure
@@ -19,11 +21,54 @@ module FILT
 
 
 
-  //==========================================================================================
-  // generation clock synchronization oversampling ratio
-  wire       osr;  
-  reg  [7:0] reg_count;
+  //===========================================================================================
+  //=                             ICU (Input control unit)                                    =
+  //===========================================================================================
+
+  wire sd_dsd_in;   // new direct stream data input
+  wire sd_clk_in;   // new sigma-delta clock synchronization
   
+  
+  
+  //-----------------------------------------------------------------------
+  // generation clock dividing for mode 3
+  wire       sysdivclk;
+  reg  [6:0] reg_cnt;
+  wire [6:0] reg_clkdivt;
+  
+  assign reg_clkdivt = {1'b0, reg_filtdiv, 2'b00} + 7'h03;
+  
+  assign sysdivclk = (reg_cnt == reg_clkdivt);
+  
+  always @ (negedge SYSRSTn or posedge SYSCLK)
+    if(!SYSRSTn)
+      reg_cnt <= 7'h00;
+    else
+      reg_cnt <= sysdivclk ? 7'h00 : (reg_cnt + 7'h01);
+  
+  
+  
+  //-----------------------------------------------------------------------
+  // MUX modes
+  assign sd_dsd_in = DSDIN;   //FIXME  
+  
+  assign sd_clk_in = (reg_filtmode == 2'b00) ?  SDCLK       :
+                     (reg_filtmode == 2'b01) ? !SDCLK       :
+                     sysdivclk; //FIXME
+  
+  
+  
+  
+  
+  //===========================================================================================
+  //=                             DCU (Decimation clock unit)                                 =
+  //===========================================================================================
+  
+  wire       osr;
+  
+  //-----------------------------------------------------------------------
+  // generation clock synchronization oversampling ratio
+  reg  [7:0] reg_count;
   assign osr = (reg_count == reg_filtdec); //FIXME: optimization
 
   always @ (negedge SYSRSTn or posedge sd_clk_in)
@@ -34,7 +79,15 @@ module FILT
 
       
       
-  //==========================================================================================
+      
+      
+  //===========================================================================================
+  //=                             FILT (filter data)                                          =
+  //===========================================================================================
+  
+  
+  
+  //-----------------------------------------------------------------------
   // filter with infinite impulse response (IIR)
   reg [31:0] CN1;
   reg [31:0] CN2;
@@ -64,7 +117,7 @@ module FILT
 
                     
                     
-  //==========================================================================================
+  //-----------------------------------------------------------------------
   // filter with finite impulse response (FIR)
   reg [31:0] DN0;
   reg [31:0] DN1;
@@ -129,7 +182,30 @@ module FILT
   
   
   
-  //==========================================================================================
+  //-----------------------------------------------------------------------
+  // generation signal data update
+  
+  reg [2:0] reg_osr;
+  
+  assign filt_data_update = (reg_osr[1:0] == 2'b10) && reg_filten; //FIXME: optimization
+  
+  always @ (negedge SYSRSTn or posedge SYSCLK)
+    if(!SYSRSTn)
+      reg_osr <= 3'b000;
+    else
+      reg_osr <= {osr, reg_osr[2:1]};
+      
+      
+      
+      
+  
+  //===========================================================================================
+  //=                             SHIFT (shift bits for data filter)                          =
+  //===========================================================================================
+  
+  
+  
+  //-----------------------------------------------------------------------
   // organization shift bits for data filter
   wire [31:0] filt_data_sh;
   
@@ -161,21 +237,6 @@ module FILT
   
   assign filt_data_out = reg_filten ? filt_data_sh : 32'h0000_0000;
   
-  
-  
-  //==========================================================================================
-  // generation signal data update
-  
-  reg [2:0] reg_osr;
-  
-  assign filt_data_update = (reg_osr[1:0] == 2'b10) && reg_filten; //FIXME: optimization
-  
-  always @ (negedge SYSRSTn or posedge SYSCLK)
-    if(!SYSRSTn)
-      reg_osr <= 3'b000;
-    else
-      reg_osr <= {osr, reg_osr[2:1]};
-      
-      
+
       
 endmodule

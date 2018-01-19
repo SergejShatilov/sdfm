@@ -46,12 +46,35 @@
   16   |    FEN     |   R/W    |       1(0)    |  Filter enable
   17   |    AEN     |   R/W    |       1(0)    |  Asknewledge enable
  18-19 |  reserved  |   RO     |       2(0)    |  reserved
- 20-21 |    STF     |   R/W    |       2(0)    |  Structure data filter
+ 20-21 |    ST      |   R/W    |       2(0)    |  Structure data filter
  22-23 |  reserved  |   RO     |       2(0)    |  reserved
 ------------------------------------------------------------------------------------------
  24-28 |    SH      |   R/W    |       5(0)    |  Value shift bits for data filter
  29-31 |  reserved  |   RO     |       3(0)    |  reserved
 ------------------------------------------------------------------------------------------
+
+
+
+    Register CPARMx:
+
+  bit  |    name    |  access  |  reset value  |  description
+------------------------------------------------------------------------------------------
+  0-7  |    DOSR    |   R/W    |       8(0)    |  Data oversampling ratio
+------------------------------------------------------------------------------------------
+  8-9  |    MOD     |   R/W    |       2(0)    |  Input mode
+ 10-11 |  reserved  |   RO     |       2(0)    |  reserved
+ 12-15 |    DIV     |   R/W    |       4(0)    |  Ratio system clock dividing for mode 3
+------------------------------------------------------------------------------------------
+  16   |    CEN     |   R/W    |       1(0)    |  Comparator enable
+  17   |   HCLRFLG  |   R/W    |       1(0)    |  Hardware clear flags comparators
+  18   |    LEN     |   R/W    |       1(0)    |  Enable comparator for mode low threshold
+  19   |    HEN     |   R/W    |       1(0)    |  Enable comparator for mode high threshold
+ 20-21 |    ST      |   R/W    |       2(0)    |  Structure comparator filter
+ 22-23 |  reserved  |   RO     |       2(0)    |  reserved
+------------------------------------------------------------------------------------------
+ 24-31 |  reserved  |   RO     |       8(0)    |  reserved
+------------------------------------------------------------------------------------------
+
 
 
     Register FDATAx:

@@ -27,8 +27,8 @@ module SDFM
   
   // DFPARMx
   wire [15:0] reg_filtdec;  // data filter decimation ratio (oversampling ratio)
-  wire [3:0]  reg_inmode;   // input mode
-  wire [7:0]  reg_clkdiv;   // ratio system clock dividing for mode 3
+  wire [3:0]  reg_filtmode; // input mode
+  wire [7:0]  reg_filtdiv;  // ratio system clock dividing for mode 3
   wire [1:0]  reg_filten;   // data filter enable
   wire [1:0]  reg_filtask;  // data filter asknewledge enable
   wire [3:0]  reg_filtst;   // data filter structure
@@ -67,8 +67,8 @@ module SDFM
     .reg_rsten   (reg_rsten),
     .reg_clken   (reg_clken),
     .reg_filtdec (reg_filtdec),
-    .reg_inmode  (reg_inmode),
-    .reg_clkdiv  (reg_clkdiv),
+    .reg_filtmode(reg_filtmode),
+    .reg_filtdiv (reg_filtdiv),
     .reg_filten  (reg_filten),
     .reg_filtask (reg_filtask),
     .reg_filtst  (reg_filtst),
@@ -90,13 +90,13 @@ module SDFM
             .SYSCLK  (SYSCLK),
             .DSDIN   (DSDIN[i]),
             .SDCLK   (SDCLK[i]),
-            .reg_filtdec (reg_filtdec [7 + i * 8 : i * 8]),
-            .reg_inmode  (reg_inmode  [1 + i * 2 : i * 2]),
-            .reg_clkdiv  (reg_clkdiv  [3 + i * 4 : i * 4]),
-            .reg_filten  (reg_filten  [i]),
-            .reg_filtask (reg_filtask [i]),
-            .reg_filtst  (reg_filtst  [1 + i * 2 : i * 2]),
-            .reg_filtsh  (reg_filtsh  [4 + i * 5 : i * 5]),
+            .reg_filtdec  (reg_filtdec [7 + i * 8 : i * 8]),
+            .reg_filtmode (reg_filtmode[1 + i * 2 : i * 2]),
+            .reg_filtdiv  (reg_filtdiv [3 + i * 4 : i * 4]),
+            .reg_filten   (reg_filten  [i]),
+            .reg_filtask  (reg_filtask [i]),
+            .reg_filtst   (reg_filtst  [1 + i * 2 : i * 2]),
+            .reg_filtsh   (reg_filtsh  [4 + i * 5 : i * 5]),
             .filt_data_out    (filt_data_out   [31 + 32 * i : 32 * i]),
             .filt_data_update (filt_data_update[i])
           );

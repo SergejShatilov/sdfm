@@ -11,8 +11,8 @@ module CHANNEL
 
   // DFPARMx
   input  wire [7:0]  reg_filtdec,       // data filter decimation ratio (oversampling ratio)
-  input  wire [1:0]  reg_inmode,        // input mode
-  input  wire [3:0]  reg_clkdiv,        // ratio system clock dividing for mode 3
+  input  wire [1:0]  reg_filtmode,      // input mode
+  input  wire [3:0]  reg_filtdiv,       // ratio system clock dividing for mode 3
   input  wire        reg_filten,        // data filter enable
   input  wire        reg_filtask,       // data filter asknewledge enable
   input  wire [1:0]  reg_filtst,        // data filter structure
@@ -22,31 +22,17 @@ module CHANNEL
   output wire        filt_data_update   // signal filter data update
 );
 
-  wire sd_dsd_in;   // new direct stream data input
-  wire sd_clk_in;   // new sigma-delta clock synchronization
-   
-  
-  // Input control unit
-  ICU icu
-  (
-    .SYSRSTn    (SYSRSTn),
-    .SYSCLK     (SYSCLK),
-    .DSDIN      (DSDIN),
-    .SDCLK      (SDCLK),
-    .reg_inmode (reg_inmode),
-    .reg_clkdiv (reg_clkdiv),
-    .sd_dsd_in  (sd_dsd_in),
-    .sd_clk_in  (sd_clk_in)  
-  );
 
   // Filter data unit
   FILT filt
   (
-    .SYSRSTn          (SYSRSTn),
-    .SYSCLK           (SYSCLK),
-    .sd_dsd_in        (sd_dsd_in),
-    .sd_clk_in        (sd_clk_in),
+    .SYSRSTn (SYSRSTn),
+    .SYSCLK  (SYSCLK),
+    .DSDIN   (DSDIN),
+    .SDCLK   (SDCLK),
     .reg_filtdec      (reg_filtdec),
+    .reg_filtmode     (reg_filtmode),
+    .reg_filtdiv      (reg_filtdiv),
     .reg_filten       (reg_filten),
     .reg_filtst       (reg_filtst),
     .reg_filtsh       (reg_filtsh),
