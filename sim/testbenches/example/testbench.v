@@ -29,7 +29,7 @@ module testbench;
     `ifdef ICARUS
       $dumpfile("out.vcd");
       $dumpvars(0, testbench);
-      #500_000 $finish;
+      #1500_000 $finish;
     `else
       #2000_000 $finish;
     `endif
@@ -160,23 +160,20 @@ module testbench;
   
   task write(input [15:0] addr, input [31:0] data);
     begin
-      //#50_000;
-      WDATA <= data;
-      #10;
+      WDATA <= data;      #(1e9 / `FREQEXTCLK);
       ADDR <= addr;
-      WR   <= 1'b1; #10;
+      WR   <= 1'b1;       #(1e9 / `FREQEXTCLK);
       WR   <= 1'b0;
-      ADDR <= {16{1'bz}};
+      ADDR <= {16{1'bz}}; #(1e9 / `FREQEXTCLK);
     end
   endtask
   
   task read(input [16:0] addr);
     begin
-      //#50_000;
       ADDR <= addr;
-      RD <= 1'b1; #10;
+      RD <= 1'b1;         #(1e9 / `FREQEXTCLK);
       RD <= 1'b0;
-      ADDR <= {16{1'bz}};
+      ADDR <= {16{1'bz}}; #(1e9 / `FREQEXTCLK);
     end
   endtask
   
@@ -185,28 +182,21 @@ module testbench;
   // Init
   initial begin
     init();
-    //#160_005;
-    #50_000;
+    #10_000;
     write(16'h0708, 32'h0000_0003);
     #10_000;
-    read(16'h0708);
-    #10_000;
-    write(16'h070C, 32'h0511_03FF);
-    write(16'h0710, 32'h0323_D03F);
+    write(16'h070C, 32'h0031_033F);
+    write(16'h0710, 32'h0011_023F);
     #10_000;
     read(16'h070C);
     read(16'h0710);
     
     #50_000;
-    write(16'h0724, 32'hABCD_6894);
-    write(16'h0728, 32'h1234_53DC);
+    write(16'h0714, 32'h0021_00FF);
+    write(16'h0718, 32'h0021_00FF);
     #10_000;
-    read(16'h0724);
-    #500;
-    read(16'h0728);
-    
-    
-    //write(8'h04, 32'h0304_503F);
+    read(16'h0714);
+    read(16'h0718);
   end
 
 endmodule

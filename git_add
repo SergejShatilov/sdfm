@@ -10,3 +10,4 @@ git add ./rtl_src/channel.v
 git add ./rtl_src/rcu.v
 git add ./rtl_src/regmap.v
 git add ./rtl_src/filt.v
+git add ./rtl_src/comp.v

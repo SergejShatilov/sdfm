@@ -19,10 +19,20 @@ module CHANNEL
   input  wire [4:0]  reg_filtsh,        // value shift bits for data filter
   
   output wire [31:0] filt_data_out,     // filter data output
-  output wire        filt_data_update   // signal filter data update
+  output wire        filt_data_update,  // signal filter data update
+  
+  // CPARMx
+  input  wire [7:0]  reg_compdec,       // comparator data decimation ratio (oversampling ratio)
+  input  wire [1:0]  reg_compmode,      // input mode
+  input  wire [3:0]  reg_compdiv,       // ratio system clock dividing for mode 3
+  input  wire        reg_compen,        // comparator enable
+  input  wire        reg_comphclrflg,   // hardware clear flags comparators
+  input  wire        reg_complen,       // hardware clear flags comparators
+  input  wire        reg_comphen,       // hardware clear flags comparators
+  input  wire [1:0]  reg_compst         // comparator filter structure
 );
 
-
+  //-----------------------------------------------------------
   // Filter data unit
   FILT filt
   (
@@ -30,14 +40,40 @@ module CHANNEL
     .SYSCLK  (SYSCLK),
     .DSDIN   (DSDIN),
     .SDCLK   (SDCLK),
+    
     .reg_filtdec      (reg_filtdec),
     .reg_filtmode     (reg_filtmode),
     .reg_filtdiv      (reg_filtdiv),
     .reg_filten       (reg_filten),
     .reg_filtst       (reg_filtst),
     .reg_filtsh       (reg_filtsh),
+    
     .filt_data_out    (filt_data_out),
     .filt_data_update (filt_data_update)
+  );
+  
+  
+  
+  //-----------------------------------------------------------
+  // Comparator unit
+  COMP comp
+  (
+    .SYSRSTn (SYSRSTn),
+    .SYSCLK  (SYSCLK),
+    .DSDIN   (DSDIN),
+    .SDCLK   (SDCLK),
+    
+    .reg_compdec    (reg_compdec),
+    .reg_compmode   (reg_compmode),
+    .reg_compdiv    (reg_compdiv),
+    .reg_compen     (reg_compen),
+    .reg_comphclrflg(reg_comphclrflg),
+    .reg_complen    (reg_complen),
+    .reg_comphen    (reg_comphen),
+    .reg_compst     (reg_compst)
+    
+   // .comp_data_out    (comp_data_out),
+   // .comp_data_update (comp_data_update)
   );
 
 endmodule

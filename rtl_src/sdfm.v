@@ -34,18 +34,28 @@ module SDFM
   wire [3:0]  reg_filtst;   // data filter structure
   wire [9:0]  reg_filtsh;   // value shift bits for data filter
   
+  // CPARMx
+  wire [15:0] reg_compdec;       // comparator data decimation ratio (oversampling ratio)
+  wire [3:0]  reg_compmode;      // input mode
+  wire [7:0]  reg_compdiv;       // ratio system clock dividing for mode 3
+  wire [1:0]  reg_compen;        // comparator enable
+  wire [1:0]  reg_comphclrflg;   // hardware clear flags comparators
+  wire [1:0]  reg_complen;       // hardware clear flags comparators
+  wire [1:0]  reg_comphen;       // hardware clear flags comparators
+  wire [3:0]  reg_compst;        // comparator filter structure
+  
 
   
   //===========================================================================================
   // Reset and clock unit
   RCU rcu
   (
-    .EXTRSTn   (EXTRSTn),
-    .EXTCLK    (EXTCLK),
-    .reg_rsten (reg_rsten),
-    .reg_clken (reg_clken),
-    .SYSRSTn   (SYSRSTn),
-    .SYSCLK    (SYSCLK)
+    .EXTRSTn  (EXTRSTn),
+    .EXTCLK   (EXTCLK),
+    .reg_rsten(reg_rsten),
+    .reg_clken(reg_clken),
+    .SYSRSTn  (SYSRSTn),
+    .SYSCLK   (SYSCLK)
   );
   
   
@@ -54,25 +64,37 @@ module SDFM
   // Registers map
   REGMAP regmap
   (
-    .EXTRSTn (EXTRSTn),
-    .EXTCLK  (EXTCLK),
-    .SYSRSTn (SYSRSTn),
-    .SYSCLK  (SYSCLK),
-    .WR      (WR),
-    .RD      (RD),
-    .ADDR    (ADDR),
-    .DATA    (DATA),
-    .filt_data_out    (filt_data_out),
-    .filt_data_update (filt_data_update),
-    .reg_rsten   (reg_rsten),
-    .reg_clken   (reg_clken),
+    .EXTRSTn(EXTRSTn),
+    .EXTCLK (EXTCLK),
+    .SYSRSTn(SYSRSTn),
+    .SYSCLK (SYSCLK),
+    .WR     (WR),
+    .RD     (RD),
+    .ADDR   (ADDR),
+    .DATA   (DATA),
+
+    .reg_rsten(reg_rsten),
+    .reg_clken(reg_clken),
+    
     .reg_filtdec (reg_filtdec),
     .reg_filtmode(reg_filtmode),
     .reg_filtdiv (reg_filtdiv),
     .reg_filten  (reg_filten),
     .reg_filtask (reg_filtask),
     .reg_filtst  (reg_filtst),
-    .reg_filtsh  (reg_filtsh)
+    .reg_filtsh  (reg_filtsh),
+    
+    .filt_data_out   (filt_data_out),
+    .filt_data_update(filt_data_update),
+    
+    .reg_compdec    (reg_compdec),
+    .reg_compmode   (reg_compmode),
+    .reg_compdiv    (reg_compdiv),
+    .reg_compen     (reg_compen),
+    .reg_comphclrflg(reg_comphclrflg),
+    .reg_complen    (reg_complen),
+    .reg_comphen    (reg_comphen),
+    .reg_compst     (reg_compst)
   );
 
   
@@ -86,19 +108,30 @@ module SDFM
         begin : SD_CHANNEL
           CHANNEL channel
           (
-            .SYSRSTn (SYSRSTn),
-            .SYSCLK  (SYSCLK),
-            .DSDIN   (DSDIN[i]),
-            .SDCLK   (SDCLK[i]),
-            .reg_filtdec  (reg_filtdec [7 + i * 8 : i * 8]),
-            .reg_filtmode (reg_filtmode[1 + i * 2 : i * 2]),
-            .reg_filtdiv  (reg_filtdiv [3 + i * 4 : i * 4]),
-            .reg_filten   (reg_filten  [i]),
-            .reg_filtask  (reg_filtask [i]),
-            .reg_filtst   (reg_filtst  [1 + i * 2 : i * 2]),
-            .reg_filtsh   (reg_filtsh  [4 + i * 5 : i * 5]),
-            .filt_data_out    (filt_data_out   [31 + 32 * i : 32 * i]),
-            .filt_data_update (filt_data_update[i])
+            .SYSRSTn(SYSRSTn),
+            .SYSCLK (SYSCLK),
+            .DSDIN  (DSDIN[i]),
+            .SDCLK  (SDCLK[i]),
+            
+            .reg_filtdec (reg_filtdec [7 + i * 8 : i * 8]),
+            .reg_filtmode(reg_filtmode[1 + i * 2 : i * 2]),
+            .reg_filtdiv (reg_filtdiv [3 + i * 4 : i * 4]),
+            .reg_filten  (reg_filten  [i]),
+            .reg_filtask (reg_filtask [i]),
+            .reg_filtst  (reg_filtst  [1 + i * 2 : i * 2]),
+            .reg_filtsh  (reg_filtsh  [4 + i * 5 : i * 5]),
+            
+            .filt_data_out   (filt_data_out   [31 + 32 * i : 32 * i]),
+            .filt_data_update(filt_data_update[i]),
+            
+            .reg_compdec    (reg_compdec    [7 + i * 8 : i * 8]),
+            .reg_compmode   (reg_compmode   [1 + i * 2 : i * 2]),
+            .reg_compdiv    (reg_compdiv    [3 + i * 4 : i * 4]),
+            .reg_compen     (reg_compen     [i]),
+            .reg_comphclrflg(reg_comphclrflg[i]),
+            .reg_complen    (reg_complen    [i]),
+            .reg_comphen    (reg_comphen    [i]),
+            .reg_compst     (reg_compst     [1 + i * 2 : i * 2])
           );
         end
     end
