@@ -18,9 +18,6 @@ module SDFM
   wire SYSRSTn;   // system reset
   wire SYSCLK;    // system clock
   
-  wire [63:0] filt_data_out;    // filter data output
-  wire [1:0]  filt_data_update; // signal filter data update
-  
   // CTL
   wire reg_rsten; // system reset enable
   wire reg_clken; // system clock enable
@@ -34,15 +31,29 @@ module SDFM
   wire [3:0]  reg_filtst;   // data filter structure
   wire [9:0]  reg_filtsh;   // value shift bits for data filter
   
+  wire [63:0] filt_data_out;    // filter data output
+  wire [1:0]  filt_data_update; // signal filter data update
+  
   // CPARMx
   wire [15:0] reg_compdec;       // comparator data decimation ratio (oversampling ratio)
   wire [3:0]  reg_compmode;      // input mode
   wire [7:0]  reg_compdiv;       // ratio system clock dividing for mode 3
   wire [1:0]  reg_compen;        // comparator enable
-  wire [1:0]  reg_comphclrflg;   // hardware clear flags comparators
-  wire [1:0]  reg_complen;       // hardware clear flags comparators
-  wire [1:0]  reg_comphen;       // hardware clear flags comparators
+  wire [1:0]  reg_compsen;       // signed data comparator enable
   wire [3:0]  reg_compst;        // comparator filter structure
+  wire [1:0]  reg_compilen;      // enable interrupt comparator for mode low threshold
+  wire [1:0]  reg_compihen;      // enable interrupt comparator for mode high threshold
+  wire [1:0]  reg_complclrflg;   // hardware clear flags comparators for mode low threshold
+  wire [1:0]  reg_comphclrflg;   // hardware clear flags comparators for mode high threshold
+  
+  wire [63:0] reg_compltrd;	     // comparator value low threshold
+  wire [63:0] reg_comphtrd;		 // comparator value high threshold
+  
+  wire [63:0] comp_data_out;     // comparator data output
+  wire [1:0]  comp_data_update;  // signal comparator data update
+
+  wire [1:0]  comp_data_low;     // signal comparator data < low threshold
+  wire [1:0]  comp_data_high;	 // signal comparator data >= high threshold
   
 
   
@@ -91,10 +102,23 @@ module SDFM
     .reg_compmode   (reg_compmode),
     .reg_compdiv    (reg_compdiv),
     .reg_compen     (reg_compen),
+	.reg_compsen    (reg_compsen),
+	.reg_compst     (reg_compst),
+	.reg_compilen   (reg_compilen),
+    .reg_compihen   (reg_compihen),
+	.reg_complclrflg(reg_complclrflg),
     .reg_comphclrflg(reg_comphclrflg),
-    .reg_complen    (reg_complen),
-    .reg_comphen    (reg_comphen),
-    .reg_compst     (reg_compst)
+	
+	.reg_compltrd(reg_compltrd),
+	.reg_comphtrd(reg_comphtrd),
+	
+	.comp_data_out   (comp_data_out),
+    .comp_data_update(comp_data_update),
+	
+	.comp_data_low (comp_data_low),
+	.comp_data_high(comp_data_high),
+	
+	.irq(IRQ)
   );
 
   
@@ -128,10 +152,21 @@ module SDFM
             .reg_compmode   (reg_compmode   [1 + i * 2 : i * 2]),
             .reg_compdiv    (reg_compdiv    [3 + i * 4 : i * 4]),
             .reg_compen     (reg_compen     [i]),
+			.reg_compsen    (reg_compsen    [i]),
+			.reg_compst     (reg_compst     [1 + i * 2 : i * 2]),
+			.reg_compilen   (reg_compilen   [i]),
+            .reg_compihen   (reg_compihen   [i]),
+			.reg_complclrflg(reg_complclrflg[i]),
             .reg_comphclrflg(reg_comphclrflg[i]),
-            .reg_complen    (reg_complen    [i]),
-            .reg_comphen    (reg_comphen    [i]),
-            .reg_compst     (reg_compst     [1 + i * 2 : i * 2])
+			
+			.reg_compltrd(reg_compltrd[31 + 32 * i : 32 * i]),
+			.reg_comphtrd(reg_comphtrd[31 + 32 * i : 32 * i]),
+			
+			.comp_data_out   (comp_data_out   [31 + 32 * i : 32 * i]),
+            .comp_data_update(comp_data_update[i]),
+			
+			.comp_data_low (comp_data_low [i]),
+			.comp_data_high(comp_data_high[i])
           );
         end
     end

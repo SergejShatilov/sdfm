@@ -11,14 +11,46 @@
   0x0C   |  DFPARM0   |  Data filter parameters register for channel 0
   0x10   |  DFPARM1   |  Data filter parameters register for channel 1
   0x14   |  CPARM0    |  Comparator parameters register for channel 0
-  0x18   |  CPARM2    |  Comparator parameters register for channel 1
-  0x1C   |  FCTL0     |  FIFO control register for channel 0
-  0x20   |  FCTL1     |  FIFO control register for channel 1
-  0x24   |  FDATA0    |  Filter data register for channel 0
-  0x28   |  FDATA1    |  Filter data register for channel 1
-  0x2C   |  CDATA0    |  Comparator data register for channel 0
-  0x30   |  CDATA1    |  Comparator data register for channel 1
+  0x18   |  CPARM1    |  Comparator parameters register for channel 1
+  0x1C   |  CMPL0	  |  Comparator threshold low for channel 0
+  0x20   |  CMPL1	  |  Comparator threshold low for channel 1
+  0x24   |  CMPH0	  |  Comparator threshold high for channel 0
+  0x28   |  CMPH1	  |  Comparator threshold high for channel 1
+  0x2C   |  FCTL0     |  FIFO control register for channel 0
+  0x30   |  FCTL1     |  FIFO control register for channel 1
+  0x34   |  FDATA0    |  Filter data register for channel 0
+  0x38   |  FDATA1    |  Filter data register for channel 1
+  0x3C   |  CDATA0    |  Comparator data register for channel 0
+  0x40   |  CDATA1    |  Comparator data register for channel 1
 -------------------------------------------------------------------------
+
+
+
+    Register IFLG:
+
+  bit  |    name    |  access  |  reset value  |  description
+==========================================================================================
+   31  |    IRQF    |    RO    |     1(0)      |  Interrupt requesten flag
+ 30-28 |  reserved  |    RO    |     3(0)      |  reserved
+///////////////////////////////////////////////|
+ 27-24 |  reserved  |    RO    |     4(0)      |  reserved
+==========================================================================================
+ 23-16 |  reserved  |    RO    |     8(0)      |  reserved
+==========================================================================================
+ 15-14 |  reserved  |    RO    |     2(0)      |  reserved
+  13   |    HF1		|    RO    |     1(0)      |  Flag comparator high data from channel 1 
+  12   |    HF0		|    RO    |     1(0)      |  Flag comparator high data from channel 0 
+///////////////////////////////////////////////|
+ 11-10 |  reserved  |    RO    |     2(0)      |  reserved
+   9   |    LF1		|    RO    |     1(0)      |  Flag comparator low data from channel 1 
+   8   |    LF0		|    RO    |     1(0)      |  Flag comparator low data from channel 0 
+==========================================================================================
+  7-4  |  reserved  |    RO    |     4(0)      |  reserved
+///////////////////////////////////////////////|
+  3-2  |  reserved  |    RO    |     2(0)      |  reserved
+   1   |    AF1		|    RO    |     1(0)      |  Asknewledge filter flag from channel 1 
+   0   |    AF0		|    RO    |     1(0)      |  Asknewledge filter flag from channel 0 
+==========================================================================================
 
 
 
@@ -28,6 +60,8 @@
 ---------------------------------------------------------------------
    0   |  RSTEN |   R/W    |      1(0)     |  System reset enable
    1   |  CLKEN |   R/W    |      1(0)     |  System clock enable
+  2-3  |  reserved  |   RO     |       2(0)    |  reserved
+   4   |  MIEN  |   R/W  |   1(0)   |  Master interrupt enable
 ---------------------------------------------------------------------
 
 
@@ -58,22 +92,48 @@
     Register CPARMx:
 
   bit  |    name    |  access  |  reset value  |  description
-------------------------------------------------------------------------------------------
+============================================================================================================
   0-7  |    DOSR    |   R/W    |       8(0)    |  Data oversampling ratio
-------------------------------------------------------------------------------------------
+============================================================================================================
   8-9  |    MOD     |   R/W    |       2(0)    |  Input mode
  10-11 |  reserved  |   RO     |       2(0)    |  reserved
+///////////////////////////////////////////////|
  12-15 |    DIV     |   R/W    |       4(0)    |  Ratio system clock dividing for mode 3
-------------------------------------------------------------------------------------------
+============================================================================================================
   16   |    CEN     |   R/W    |       1(0)    |  Comparator enable
-  17   |   HCLRFLG  |   R/W    |       1(0)    |  Hardware clear flags comparators
-  18   |    LEN     |   R/W    |       1(0)    |  Enable comparator for mode low threshold
-  19   |    HEN     |   R/W    |       1(0)    |  Enable comparator for mode high threshold
+  17   |	SEN		|   R/W    |	   1(0)    |  Enable signed data comparator
+ 18-19 |  reserved  |   R/W    |       2(0)    |  reserved
+///////////////////////////////////////////////|
  20-21 |    ST      |   R/W    |       2(0)    |  Structure comparator filter
- 22-23 |  reserved  |   RO     |       2(0)    |  reserved
-------------------------------------------------------------------------------------------
- 24-31 |  reserved  |   RO     |       8(0)    |  reserved
-------------------------------------------------------------------------------------------
+ 22-23 |  reserved  |   R/W    |       2(0)    |  reserved
+============================================================================================================
+  24   |    ILEN    |   R/W    |       1(0)    |  Enable interrupt comparator for mode low threshold
+  25   |    IHEN    |   R/W    |       1(0)    |  Enable interrupt comparator for mode high threshold
+ 26-27 |  reserved  |   RO     |       2(0)    |  reserved
+///////////////////////////////////////////////|
+  28   |   LCLRFLG  |   R/W    |       1(0)    |  Hardware clear flags comparators for mode low threshold
+  29   |   HCLRFLG  |   R/W    |       1(0)    |  Hardware clear flags comparators for mode high threshold
+ 30-31 |  reserved  |   RO     |       2(0)    |  reserved
+============================================================================================================
+
+
+
+
+    Register CMPLx:
+
+  bit  |    name    |  access  |  reset value  |  description
+===============================================================================
+  0-31 |    CMPL    |   R/W    |     32(0)     |  Comparator threshold low
+===============================================================================
+ 
+  
+  
+    Register CMPHx:
+
+  bit  |    name    |  access  |  reset value  |  description
+===============================================================================
+  0-31 |    CMPH    |   R/W    |     32(0)     |  Comparator threshold high
+===============================================================================
 
 
 
@@ -82,5 +142,14 @@
   bit  |    name    |  access  |  reset value  |  description
 -------------------------------------------------------------------
   0-31 |    DATA    |    RO    |     32(0)     |  filter data
+-------------------------------------------------------------------
+
+
+
+    Register CDATAx:
+
+  bit  |    name    |  access  |  reset value  |  description
+-------------------------------------------------------------------
+  0-31 |    DATA    |    RO    |     32(0)     |  comparator data
 -------------------------------------------------------------------
 

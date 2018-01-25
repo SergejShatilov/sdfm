@@ -8,18 +8,26 @@ module COMP
   input  wire        SYSCLK,            // system clock
   input  wire        DSDIN,             // direct stream data input
   input  wire        SDCLK,             // sigma-delta clock synchronization
-  
+
   input  wire [7:0]  reg_compdec,       // comparator data decimation ratio (oversampling ratio)
   input  wire [1:0]  reg_compmode,      // input mode
   input  wire [3:0]  reg_compdiv,       // ratio system clock dividing for mode 3
   input  wire        reg_compen,        // comparator enable
-  input  wire        reg_comphclrflg,   // hardware clear flags comparators
-  input  wire        reg_complen,       // hardware clear flags comparators
-  input  wire        reg_comphen,       // hardware clear flags comparators
+  input  wire        reg_compsen,       // signed data comparator enable
   input  wire [1:0]  reg_compst,        // comparator filter structure
+  input  wire        reg_compilen,      // enable interrupt comparator for mode low threshold
+  input  wire        reg_compihen,      // enable interrupt comparator for mode high threshold
+  input  wire        reg_complclrflg,   // hardware clear flags comparators for mode low threshold
+  input  wire        reg_comphclrflg,   // hardware clear flags comparators for mode high threshold
+  
+  input  wire [31:0] reg_compltrd,      // comparator value low threshold
+  input  wire [31:0] reg_comphtrd,	    // comparator value high threshold
   
   output wire [31:0] comp_data_out,     // comparator data output
-  output wire        comp_data_update   // signal comparator data update
+  output wire        comp_data_update,  // signal comparator data update
+  
+  output wire        comp_data_low,		// signal comparator data < low threshold
+  output wire        comp_data_high		// signal comparator data >= high threshold
 );
 
 
@@ -100,7 +108,8 @@ module COMP
     if(!SYSRSTn)
       CN1 <= 32'h0000_0000;
     else
-      CN1 <= sd_dsd_in ? (CN1 + 32'h0000_0001) : (CN1 + 32'hFFFF_FFFF);
+      CN1 <= sd_dsd_in   ? (CN1 + 32'h0000_0001) :
+			 reg_compsen ? (CN1 + 32'hFFFF_FFFF) : (CN1 + 32'h0000_0000);
 
   always @ (negedge SYSRSTn or posedge sd_clk_in)
     if(!SYSRSTn)
@@ -180,7 +189,7 @@ module COMP
                    (reg_compst == 2'b01) ? QN1 :
                    (reg_compst == 2'b10) ? QN2 : QN3;
 
-  wire [31:0] comp_data;
+  //wire [31:0] comp_data;
   assign comp_data_out = fir_out;
   
   
@@ -196,7 +205,25 @@ module COMP
       reg_osr <= 3'b000;
     else
       reg_osr <= {osr, reg_osr[2:1]};
-       
-
+	  
+	  
+	  
+	  
+	  
+  //===========================================================================================
+  //=                              CLU (Comparator low unit)                                  =
+  //===========================================================================================
+  assign comp_data_low = (comp_data_out < reg_compltrd) && osr;
+  
+  
+  
+  
+  
+  //===========================================================================================
+  //=                              CHU (Comparator high unit)                                 =
+  //===========================================================================================
+  assign comp_data_high = (comp_data_out >= reg_comphtrd) && osr;
+  
+  
       
 endmodule

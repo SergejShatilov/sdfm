@@ -26,10 +26,21 @@ module CHANNEL
   input  wire [1:0]  reg_compmode,      // input mode
   input  wire [3:0]  reg_compdiv,       // ratio system clock dividing for mode 3
   input  wire        reg_compen,        // comparator enable
-  input  wire        reg_comphclrflg,   // hardware clear flags comparators
-  input  wire        reg_complen,       // hardware clear flags comparators
-  input  wire        reg_comphen,       // hardware clear flags comparators
-  input  wire [1:0]  reg_compst         // comparator filter structure
+  input  wire        reg_compsen,       // signed data comparator enable
+  input  wire [1:0]  reg_compst,        // comparator filter structure
+  input  wire        reg_compilen,      // enable interrupt comparator for mode low threshold
+  input  wire        reg_compihen,      // enable interrupt comparator for mode high threshold
+  input  wire        reg_complclrflg,   // hardware clear flags comparators for mode low threshold
+  input  wire        reg_comphclrflg,   // hardware clear flags comparators for mode high threshold
+  
+  input  wire [31:0] reg_compltrd,      // comparator value low threshold
+  input  wire [31:0] reg_comphtrd,	    // comparator value high threshold
+  
+  output wire [31:0] comp_data_out,     // comparator data output
+  output wire        comp_data_update,  // signal comparator data update
+  
+  output wire        comp_data_low,		// signal comparator data < low threshold
+  output wire        comp_data_high		// signal comparator data >= high threshold
 );
 
   //-----------------------------------------------------------
@@ -58,22 +69,30 @@ module CHANNEL
   // Comparator unit
   COMP comp
   (
-    .SYSRSTn (SYSRSTn),
-    .SYSCLK  (SYSCLK),
-    .DSDIN   (DSDIN),
-    .SDCLK   (SDCLK),
+    .SYSRSTn(SYSRSTn),
+    .SYSCLK (SYSCLK),
+    .DSDIN  (DSDIN),
+    .SDCLK  (SDCLK),
     
     .reg_compdec    (reg_compdec),
     .reg_compmode   (reg_compmode),
     .reg_compdiv    (reg_compdiv),
     .reg_compen     (reg_compen),
+	.reg_compsen    (reg_compsen),
+	.reg_compst     (reg_compst),
+    .reg_compilen   (reg_compilen),
+    .reg_compihen   (reg_compihen),
+    .reg_complclrflg(reg_complclrflg),
     .reg_comphclrflg(reg_comphclrflg),
-    .reg_complen    (reg_complen),
-    .reg_comphen    (reg_comphen),
-    .reg_compst     (reg_compst)
+	
+	.reg_compltrd(reg_compltrd),
+	.reg_comphtrd(reg_comphtrd),
     
-   // .comp_data_out    (comp_data_out),
-   // .comp_data_update (comp_data_update)
+    .comp_data_out   (comp_data_out),
+    .comp_data_update(comp_data_update),
+	
+	.comp_data_low (comp_data_low),
+	.comp_data_high(comp_data_high)
   );
 
 endmodule

@@ -1,4 +1,5 @@
 `define ICARUS
+`define WINDOWS
 
 `ifdef ICARUS
   `timescale 1ns / 1ns
@@ -27,7 +28,7 @@ module testbench;
 
   initial begin
     `ifdef ICARUS
-      $dumpfile("out.vcd");
+      $dumpfile("C:/iverilog/sdfm/sim/work/out.vcd");
       $dumpvars(0, testbench);
       #1500_000 $finish;
     `else
@@ -108,10 +109,15 @@ module testbench;
   
   //=================================
   // Modulators
-  `include "../testbenches/example/tb_sdm/tb_sdm_0.v"
-  `include "../testbenches/example/tb_sdm/tb_sdm_1.v"
-  `include "../testbenches/example/tb_sdm/tb_math.v"
-    
+  `ifdef WINDOWS
+    `include "sim/testbenches/example/tb_sdm/tb_sdm_0.v"
+    `include "sim/testbenches/example/tb_sdm/tb_sdm_1.v"
+    `include "sim/testbenches/example/tb_sdm/tb_math.v"
+  `else
+    `include "../testbenches/example/tb_sdm/tb_sdm_0.v"
+    `include "../testbenches/example/tb_sdm/tb_sdm_1.v"
+    `include "../testbenches/example/tb_sdm/tb_math.v"
+  `endif
 
   //=================================
   // Demodulator
@@ -183,7 +189,7 @@ module testbench;
   initial begin
     init();
     #10_000;
-    write(16'h0708, 32'h0000_0003);
+    write(16'h0708, 32'h0000_0013);
     #10_000;
     write(16'h070C, 32'h0031_033F);
     write(16'h0710, 32'h0011_023F);
@@ -192,11 +198,15 @@ module testbench;
     read(16'h0710);
     
     #50_000;
-    write(16'h0714, 32'h0021_00FF);
-    write(16'h0718, 32'h0021_00FF);
+    write(16'h0714, 32'h3121_00FF);
+    write(16'h0718, 32'h0023_00FF);
+	write(16'h071C, 33557);
+	write(16'h0724, 5000);
     #10_000;
     read(16'h0714);
     read(16'h0718);
+	#1000_000;
+	write(16'h0704, 32'h8000_1100);
   end
 
 endmodule
