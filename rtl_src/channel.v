@@ -4,15 +4,18 @@
 
 module CHANNEL
 (
+  // general
   input  wire        SYSRSTn,           // system reset
   input  wire        SYSCLK,            // system clock
   input  wire        DSDIN,             // direct stream data input
   input  wire        SDCLK,             // sigma-delta clock synchronization
 
-  // DFPARMx
+  // input control
+  input  wire [1:0]  reg_inmod,         // input mode
+  input  wire [3:0]  reg_indiv,         // ratio system clock dividing for mode 3
+
+  // data filter
   input  wire [7:0]  reg_filtdec,       // data filter decimation ratio (oversampling ratio)
-  input  wire [1:0]  reg_filtmode,      // input mode
-  input  wire [3:0]  reg_filtdiv,       // ratio system clock dividing for mode 3
   input  wire        reg_filten,        // data filter enable
   input  wire        reg_filtask,       // data filter asknewledge enable
   input  wire [1:0]  reg_filtst,        // data filter structure
@@ -21,10 +24,8 @@ module CHANNEL
   output wire [31:0] filt_data_out,     // filter data output
   output wire        filt_data_update,  // signal filter data update
   
-  // CPARMx
+  // comparator
   input  wire [7:0]  reg_compdec,       // comparator data decimation ratio (oversampling ratio)
-  input  wire [1:0]  reg_compmode,      // input mode
-  input  wire [3:0]  reg_compdiv,       // ratio system clock dividing for mode 3
   input  wire        reg_compen,        // comparator enable
   input  wire        reg_compsen,       // signed data comparator enable
   input  wire [1:0]  reg_compst,        // comparator filter structure
@@ -44,23 +45,40 @@ module CHANNEL
 );
 
   //-----------------------------------------------------------
+  // Input control unit
+  ICU icu
+  (
+    .SYSRSTn(SYSRSTn),
+    .SYSCLK (SYSCLK),
+    .DSDIN(DSDIN),
+    .SDCLK(SDCLK),
+
+    .reg_inmod(reg_inmod),
+    .reg_indiv(reg_indiv),
+
+    .sd_dsd_in(sd_dsd_in),
+    .sd_clk_in(sd_clk_in)
+  );
+
+
+
+  //-----------------------------------------------------------
   // Filter data unit
   FILT filt
   (
-    .SYSRSTn (SYSRSTn),
-    .SYSCLK  (SYSCLK),
-    .DSDIN   (DSDIN),
-    .SDCLK   (SDCLK),
+    .SYSRSTn(SYSRSTn),
+    .SYSCLK (SYSCLK),
+
+    .sd_dsd_in(sd_dsd_in),
+    .sd_clk_in(sd_clk_in),
     
-    .reg_filtdec      (reg_filtdec),
-    .reg_filtmode     (reg_filtmode),
-    .reg_filtdiv      (reg_filtdiv),
-    .reg_filten       (reg_filten),
-    .reg_filtst       (reg_filtst),
-    .reg_filtsh       (reg_filtsh),
+    .reg_filtdec(reg_filtdec),
+    .reg_filten (reg_filten),
+    .reg_filtst (reg_filtst),
+    .reg_filtsh (reg_filtsh),
     
-    .filt_data_out    (filt_data_out),
-    .filt_data_update (filt_data_update)
+    .filt_data_out   (filt_data_out),
+    .filt_data_update(filt_data_update)
   );
   
   
@@ -75,24 +93,22 @@ module CHANNEL
     .SDCLK  (SDCLK),
     
     .reg_compdec    (reg_compdec),
-    .reg_compmode   (reg_compmode),
-    .reg_compdiv    (reg_compdiv),
     .reg_compen     (reg_compen),
-	.reg_compsen    (reg_compsen),
-	.reg_compst     (reg_compst),
+	  .reg_compsen    (reg_compsen),
+	  .reg_compst     (reg_compst),
     .reg_compilen   (reg_compilen),
     .reg_compihen   (reg_compihen),
     .reg_complclrflg(reg_complclrflg),
     .reg_comphclrflg(reg_comphclrflg),
 	
-	.reg_compltrd(reg_compltrd),
-	.reg_comphtrd(reg_comphtrd),
+	  .reg_compltrd(reg_compltrd),
+	  .reg_comphtrd(reg_comphtrd),
     
     .comp_data_out   (comp_data_out),
     .comp_data_update(comp_data_update),
 	
-	.comp_data_low (comp_data_low),
-	.comp_data_high(comp_data_high)
+	  .comp_data_low (comp_data_low),
+	  .comp_data_high(comp_data_high)
   );
 
 endmodule

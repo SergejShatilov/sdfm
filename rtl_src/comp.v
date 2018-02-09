@@ -10,7 +10,7 @@ module COMP
   input  wire        SDCLK,             // sigma-delta clock synchronization
 
   input  wire [7:0]  reg_compdec,       // comparator data decimation ratio (oversampling ratio)
-  input  wire [1:0]  reg_compmode,      // input mode
+  input  wire [1:0]  reg_compmod,       // input mode
   input  wire [3:0]  reg_compdiv,       // ratio system clock dividing for mode 3
   input  wire        reg_compen,        // comparator enable
   input  wire        reg_compsen,       // signed data comparator enable
@@ -63,8 +63,8 @@ module COMP
   // MUX modes
   assign sd_dsd_in = DSDIN;   //FIXME  
   
-  assign sd_clk_in = (reg_compmode == 2'b00) ?  SDCLK :
-                     (reg_compmode == 2'b01) ? !SDCLK :
+  assign sd_clk_in = (reg_compmod == 2'b00) ?  SDCLK :
+                     (reg_compmod == 2'b01) ? !SDCLK :
                      sysdivclk; //FIXME
   
   

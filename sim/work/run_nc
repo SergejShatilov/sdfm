@@ -1,0 +1,61 @@
+#!/bin/bash
+
+TESTBENCH="tb_sddm"
+BATCHMODE="DISABLE"
+
+PROJECTDIR="/home/student/shsv/sdfm"
+CLEARWORKDIR="DISABLE"
+SIMVISION="DISABLE"
+TESTNAME="example"
+TESTFILE="testbench.v"
+WORKDIR="./"
+
+echo "> configuration..."
+
+# Parser parameters
+while getopts "t:brs" Option
+do
+  case $Option in
+    b) BATCHMODE="ENABLE";;
+    t) TESTNAME=$OPTARG;;
+    r) CLEARWORKDIR="ENABLE";;
+    s) SIMVISION="ENABLE";;
+  esac
+done
+
+TESTFILE="../testbenches/$TESTNAME/$TESTFILE"
+
+echo "    PROJECTDIR = $PROJECTDIR"
+echo "    CLEARWORKDIR = $CLEARWORKDIR"
+echo "    SIMVISION = $SIMVISION"
+echo "    TESTFILE = $TESTFILE"
+echo "    WORKDIR = $WORKDIR"
+
+# Clear working directory
+if [ $CLEARWORKDIR = "ENABLE" ]
+then
+  echo "> clear all temp data in work directory..."
+  rm -rf *~ INCA_libs log.txt logfile *.key
+  echo "  ready!"
+  exit 0
+fi
+
+# Create parameters for ncverilog launch
+PARAMS="+nc64bit"
+if [ $SIMVISION = "ENABLE" ]
+then
+  PARAMS="${PARAMS}  +gui"
+fi
+
+PARAMS="${PARAMS} +nclicq +sv +access+rwc -timescale 1ns/1ps -V200X"
+PARAMS="${PARAMS} -nowarn ASSERT -nowarn NONPRT -NONTCGLITCH +define+SIM+NO_DEBUG_PRINTF"
+PARAMS="${PARAMS} +ncsmartorder +ncv93"
+PARAMS="${PARAMS} +notimingchecks +nospecify"
+PARAMS="${PARAMS} -l logfile"
+PARAMS="${PARAMS} +ncview+module"
+PARAMS="${PARAMS} -work worklib +nctop+worklib.testbench:module"
+PARAMS="${PARAMS} -f ../files_lists/src_v.srclist"
+PARAMS="${PARAMS} ${TESTFILE}"
+
+ncverilog `echo "${PARAMS}"` | tee -a log.txt
+exit 0

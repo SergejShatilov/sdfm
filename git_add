@@ -1,13 +1,22 @@
 #!bin/bash 
 
-#git add ./README.md
 git add ./git_add
 git add ./info.txt
+
 git add ./sim/work/run_icarus
+git add ./sim/work/run_nc
+
 git add ./sim/testbenches/example/testbench.v
-git add ./rtl_src/sdfm.v
+git add ./sim/testbenches/example/tb_sdm/tb_math.v
+git add ./sim/testbenches/example/tb_sdm/tb_sdm_0.v
+git add ./sim/testbenches/example/tb_sdm/tb_sdm_1.v
+git add ./sim/testbenches/example/tb_sdm/tb_iostream.v
+
 git add ./rtl_src/channel.v
+git add ./rtl_src/comp.v
+git add ./rtl_src/filt.v
+git add ./rtl_src/icu.v
 git add ./rtl_src/rcu.v
 git add ./rtl_src/regmap.v
-git add ./rtl_src/filt.v
-git add ./rtl_src/comp.v
+git add ./rtl_src/sdfm.v
+

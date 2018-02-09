@@ -1,5 +1,5 @@
-`define ICARUS
-`define WINDOWS
+//`define ICARUS
+//`define WINDOWS
 
 `ifdef ICARUS
   `timescale 1ns / 1ns
@@ -21,7 +21,7 @@
 `define FSR_0  44.1e3 // Frequence sampling
 `define FSR_1  44.1e3
 
-`define FOSR_0 256    // Filter oversampling ratio
+`define FOSR_0 32    // Filter oversampling ratio
 `define FOSR_1 256
 
 module testbench;
@@ -47,7 +47,7 @@ module testbench;
     `ifdef ICARUS
       #10;
     `else
-      #200_000;               //FIXME
+      #200_000;
     `endif
     MODELING_RSTn <= 1'b1;
   end
@@ -132,12 +132,12 @@ module testbench;
   reg         WR;
   reg         RD;
 
-  assign DSDIN = {SDM_out_1, SDM_out_0};
-  assign SDCLK = {SDCLK_1, SDCLK_0};
+  //assign DSDIN = {SDM_out_1, SDM_out_0};
+  //assign SDCLK = {SDCLK_1, SDCLK_0};
   
   // for mode 2 (manchester mode)
-  //assign DSDIN = {(SDM_out_1 ^ SDCLK_1), (SDM_out_0 ^ SDCLK_0)};
-  //assign SDCLK = 2'b00;
+  assign DSDIN = {(SDM_out_1 ^ SDCLK_1), (SDM_out_0 ^ SDCLK_0)};
+  assign SDCLK = 2'b00;
 
   
   assign DATA = WR ? WDATA : {32{1'bz}};
@@ -156,57 +156,23 @@ module testbench;
     .IRQ(IRQ)
   );
 
-  task init;
-    begin
-      WR <= 1'b0;
-      RD <= 1'b0;
-      ADDR <= {16{1'bz}};
-    end
-  endtask
-  
-  task write(input [15:0] addr, input [31:0] data);
-    begin
-      WDATA <= data;      #(1e9 / `FREQEXTCLK);
-      ADDR <= addr;
-      WR   <= 1'b1;       #(1e9 / `FREQEXTCLK);
-      WR   <= 1'b0;
-      ADDR <= {16{1'bz}}; #(1e9 / `FREQEXTCLK);
-    end
-  endtask
-  
-  task read(input [16:0] addr);
-    begin
-      ADDR <= addr;
-      RD <= 1'b1;         #(1e9 / `FREQEXTCLK);
-      RD <= 1'b0;
-      ADDR <= {16{1'bz}}; #(1e9 / `FREQEXTCLK);
-    end
-  endtask
-  
+
+  `include "../testbenches/example/tb_sdm/tb_iostream.v"
   
   //================================
   // Init
   initial begin
     init();
+    `ifndef ICARUS
+      #300_000;
+    `endif
     #10_000;
-    write(16'h0708, 32'h0000_0013);
+    writeCTL(1, 1, 0);
     #10_000;
-    write(16'h070C, 32'h0031_033F);
-    write(16'h0710, 32'h0011_023F);
+    writeINPARM0(2, 0);
     #10_000;
-    read(16'h070C);
-    read(16'h0710);
-    
-    #50_000;
-    write(16'h0714, 32'h3121_00FF);
-    write(16'h0718, 32'h0023_00FF);
-	write(16'h071C, 33557);
-	write(16'h0724, 5000);
-    #10_000;
-    read(16'h0714);
-    read(16'h0718);
-	#1000_000;
-	write(16'h0704, 32'h8000_1100);
+    writeDFPARM0(31, 1, 0, 0, 0);
+
   end
 
 endmodule
