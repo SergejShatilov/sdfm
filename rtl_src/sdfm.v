@@ -27,6 +27,8 @@ module SDFM
   wire [3:0]  reg_inmodx;  // input mode
   wire [7:0]  reg_indivx;  // ratio system clock dividing for mode 3
 
+  wire [1:0]  detect_err;  // signal detecter error clock input
+
   // data filters
   wire [15:0] reg_filtdecx;      // data filter decimation ratio (oversampling ratio)
   wire [1:0]  reg_filtenx;       // data filter enable
@@ -37,7 +39,7 @@ module SDFM
   wire [63:0] filt_data_outx;    // filter data output
   wire [1:0]  filt_data_updatex; // signal filter data update
   
-  // CPARMx
+  // comparators
   wire [15:0] reg_compdecx;       // comparator data decimation ratio (oversampling ratio)
   wire [3:0]  reg_compmodx;       // input mode
   wire [7:0]  reg_compdivx;       // ratio system clock dividing for mode 3
@@ -57,7 +59,15 @@ module SDFM
 
   wire [1:0]  comp_data_lowx;     // signal comparator data < low threshold
   wire [1:0]  comp_data_highx;	  // signal comparator data >= high threshold
-  
+
+  // fifo
+  wire [1:0]  reg_fifoenx;   // fifo enable
+  wire [7:0]  reg_fifoilvlx; // fifo interrupt level
+  wire [1:0]  fifo_rdx;      // signal read FDATA register
+
+  wire [7:0]  fifo_statx;    // status fifo
+  wire [1:0]  fifo_lvlupx;   // signal level up fifo status
+  wire [1:0]  fifo_fullx;    // signal full fifo status
 
   
   //===========================================================================================
@@ -97,6 +107,8 @@ module SDFM
     .reg_inmodx(reg_inmodx),
     .reg_indivx(reg_indivx),
 
+    .detect_err(detect_err),
+
     // data filters
     .reg_filtdecx(reg_filtdecx),
     .reg_filtenx (reg_filtenx),
@@ -124,7 +136,16 @@ module SDFM
     .comp_data_updatex(comp_data_updatex),
 	
 	  .comp_data_lowx (comp_data_lowx),
-	  .comp_data_highx(comp_data_highx)
+	  .comp_data_highx(comp_data_highx),
+
+    // fifo
+    .reg_fifoenx  (reg_fifoenx),
+    .reg_fifoilvlx(reg_fifoilvlx),
+    .fifo_rdx     (fifo_rdx),
+
+    .fifo_statx (fifo_statx),
+    .fifo_lvlupx(fifo_lvlupx),
+    .fifo_fullx (fifo_fullx)
   );
 
   
@@ -147,6 +168,8 @@ module SDFM
             // input control
             .reg_inmod(reg_inmodx[1 + i * 2 : i * 2]),
             .reg_indiv(reg_indivx[3 + i * 4 : i * 4]),
+
+            .detect_err(detect_err[i]),
 
             // data filter
             .reg_filtdec(reg_filtdecx[7 + i * 8 : i * 8]),
@@ -175,7 +198,16 @@ module SDFM
             .comp_data_update(comp_data_updatex[i]),
 			
 			      .comp_data_low (comp_data_lowx [i]),
-			      .comp_data_high(comp_data_highx[i])
+			      .comp_data_high(comp_data_highx[i]),
+
+            // fifo
+            .reg_fifoen  (reg_fifoenx  [i]),
+            .reg_fifoilvl(reg_fifoilvlx[3 + 4 * i : 4 * i]),
+            .fifo_rd     (fifo_rdx     [i]),
+
+            .fifo_stat (fifo_statx [3 + 4 * i : 4 * i]),
+            .fifo_lvlup(fifo_lvlupx[i]),
+            .fifo_full (fifo_fullx [i])
           );
         end
     end

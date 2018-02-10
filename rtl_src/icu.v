@@ -129,17 +129,28 @@ module ICU
   //-----------------------------------------------------------------------
   // detector error input clock
 
+  wire       edge_clk_in;
+  reg  [2:0] edge_clk_in_syn;
+
+  always @ (negedge SYSRSTn or posedge SYSCLK)
+    if(!SYSRSTn)
+      edge_clk_in_syn <= 2'b00;
+    else
+      edge_clk_in_syn <= {edge_clk_in_syn[1:0], SDCLK};
+
+  assign edge_clk_in = edge_clk_in_syn[2] ^ edge_clk_in_syn[1];
+
   reg [7:0] detect_err_cnt;
 
   always @ (negedge SYSRSTn or posedge SYSCLK)
     if(!SYSRSTn)
       detect_err_cnt <= 8'h00;
-    else if((pos_edge_clk_in | neg_edge_clk_in) | (mode == 2))
-  clk_in_error_cntr <= 0;
-else if(!clk_in_error_cntr[7])
-  clk_in_error_cntr <= clk_in_error_cntr + 1;
+    else if(edge_clk_in | (reg_inmod == 2'b10))
+      detect_err_cnt <= 0;
+    else if(!detect_err_cnt[7])
+      detect_err_cnt <= detect_err_cnt + 8'h01;
   
-assign clk_in_error = clk_in_error_cntr[7] | manchester_decoder_error;
+  assign detect_err = detect_err_cnt[7] | mod2_err;
   
   
   

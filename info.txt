@@ -3,167 +3,285 @@
           Register map
 ====================================================================
 
- offset  |  register  |  description
+   base   |  offset  |  register  |  description
 ==========================================================================================
-  0x00   |  IFLG      |  Interrupts flags register
-  0x04   |  IFLGCLR   |  Interrupts flags clear register
-  0x08   |  CTL       |  Control register SDFM
-  0x0C   |  INPARM0   |  Input parameters register for channel 0
-  0x10   |  INPARM1   |  Input parameters register for channel 1
-  0x14   |  DFPARM0   |  Data filter parameters register for channel 0
-  0x18   |  DFPARM1   |  Data filter parameters register for channel 1
-  0x1C   |  CPARM0    |  Comparator parameters register for channel 0
-  0x20   |  CPARM1    |  Comparator parameters register for channel 1
-  0x24   |  CMPL0	    |  Comparator threshold low for channel 0
-  0x28   |  CMPL1	    |  Comparator threshold low for channel 1
-  0x2C   |  CMPH0	    |  Comparator threshold high for channel 0
-  0x30   |  CMPH1	    |  Comparator threshold high for channel 1
-  0x34   |  FCTL0     |  FIFO control register for channel 0
-  0x38   |  FCTL1     |  FIFO control register for channel 1
-  0x3C   |  FDATA0    |  Filter data register for channel 0
-  0x40   |  FDATA1    |  Filter data register for channel 1
-  0x44   |  CDATA0    |  Comparator data register for channel 0
-  0x48   |  CDATA1    |  Comparator data register for channel 1
-==========================================================================================
-
-
-
-Register IFLG:
-
-  bit  |    name    |  access  |  reset value  |  description
-==========================================================================================
-   31  |    IRQF    |    RO    |     1(0)      |  Interrupt requesten flag
- 30-28 |  reserved  |    RO    |     3(0)      |  reserved
-///////////////////////////////////////////////|
- 27-24 |  reserved  |    RO    |     4(0)      |  reserved
-==========================================================================================
- 23-16 |  reserved  |    RO    |     8(0)      |  reserved
-==========================================================================================
- 15-14 |  reserved  |    RO    |     2(0)      |  reserved
-  13   |    HF1		  |    RO    |     1(0)      |  Flag comparator high data from channel 1 
-  12   |    HF0		  |    RO    |     1(0)      |  Flag comparator high data from channel 0 
-///////////////////////////////////////////////|
- 11-10 |  reserved  |    RO    |     2(0)      |  reserved
-   9   |    LF1		  |    RO    |     1(0)      |  Flag comparator low data from channel 1 
-   8   |    LF0		  |    RO    |     1(0)      |  Flag comparator low data from channel 0 
-==========================================================================================
-  7-4  |  reserved  |    RO    |     4(0)      |  reserved
-///////////////////////////////////////////////|
-  3-2  |  reserved  |    RO    |     2(0)      |  reserved
-   1   |    AF1		  |    RO    |     1(0)      |  Asknewledge filter flag from channel 1 
-   0   |    AF0		  |    RO    |     1(0)      |  Asknewledge filter flag from channel 0 
+  0x0700  |  0x00    |  IFLG      |  Interrupts flags register
+          |  0x04    |  IFLGCLR   |  Interrupts flags clear register
+          |  0x08    |  CTL       |  Control register SDFM
+          |  0x0C    |  INPARM0   |  Input parameters register for channel 0
+          |  0x10    |  INPARM1   |  Input parameters register for channel 1
+          |  0x14    |  DFPARM0   |  Data filter parameters register for channel 0
+          |  0x18    |  DFPARM1   |  Data filter parameters register for channel 1
+          |  0x1C    |  CPARM0    |  Comparator parameters register for channel 0
+          |  0x20    |  CPARM1    |  Comparator parameters register for channel 1
+          |  0x24    |  CMPL0	    |  Comparator threshold low for channel 0
+          |  0x28    |  CMPL1	    |  Comparator threshold low for channel 1
+          |  0x2C    |  CMPH0	    |  Comparator threshold high for channel 0
+          |  0x30    |  CMPH1	    |  Comparator threshold high for channel 1
+          |  0x34    |  FCTL0     |  FIFO control register for channel 0
+          |  0x38    |  FCTL1     |  FIFO control register for channel 1
+          |  0x3C    |  FDATA0    |  Filter data register for channel 0
+          |  0x40    |  FDATA1    |  Filter data register for channel 1
+          |  0x44    |  CDATA0    |  Comparator data register for channel 0
+          |  0x48    |  CDATA1    |  Comparator data register for channel 1
 ==========================================================================================
 
 
 
-Register CTL:
-
-  bit  |  name      |  access  |  reset value  |  description
-========================================================================
-   0   |  RSTEN     |   R/W    |      1(0)     |  System reset enable
-   1   |  CLKEN     |   R/W    |      1(0)     |  System clock enable
-  2-3  |  reserved  |   RO     |      2(0)     |  reserved
-///////////////////////////////////////////////|
-   4   |  MIEN      |   R/W    |      1(0)     |  Master interrupt enable
-  5-7  |  reserved  |   RO     |      3(0)     |  reserved
-========================================================================
-  8-31 |  reserved  |   RO     |      24(0)    |  reserved
-========================================================================
 
 
+Register IFLG (offset = 0x00):
 
-Register INPARMx:
-
-  bit  |    name    |  access  |  reset value  |  description
-==========================================================================================
-  0-1  |    MOD     |   R/W    |       2(0)    |  Input mode
-  2-3  |  reserved  |   RO     |       2(0)    |  reserved
-///////////////////////////////////////////////|
-  4-7  |    DIV     |   R/W    |       4(0)    |  Ratio system clock dividing for mode 3
-==========================================================================================
-  8-31 |  reserved  |   RO     |       24(0)   |  reserved
-==========================================================================================
-
-
-
-    Register DFPARMx:
-
-  bit  |    name    |  access  |  reset value  |  description
-==========================================================================================
-  0-7  |    DOSR    |   R/W    |       8(0)    |  Data oversampling ratio
-==========================================================================================
-   8   |    FEN     |   R/W    |       1(0)    |  Filter enable
-   9   |    AEN     |   R/W    |       1(0)    |  Asknewledge enable
- 10-11 |  reserved  |   RO     |       2(0)    |  reserved
-///////////////////////////////////////////////|
- 12-13 |    ST      |   R/W    |       2(0)    |  Structure data filter
- 14-15 |  reserved  |   RO     |       2(0)    |  reserved
-==========================================================================================
- 16-20 |    SH      |   R/W    |       5(0)    |  Value shift bits for data filter
- 21-23 |  reserved  |   RO     |       3(0)    |  reserved
-==========================================================================================
- 24-31 |  reserved  |   RO     |       8(0)    |  reserved
-==========================================================================================
+   bits    |    bit    |    name    |  access  |  reset value  |  description
+=============================================================================================================
+  8  |  4  |  [31]     |  IRQF      |    RO    |     1(0)      |  Interrupt requesten flag
+     |     |  [30:28]  |  reserved  |    RO    |     3(0)      |  reserved
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [27:24]  |  reserved  |    RO    |     4(0)      |  reserved
+=============================================================================================================
+  8  |  4  |  [23:22]  |  reserved  |    RO    |     2(0)      |  reserved
+     |     |  [21]     |  FLU1      |    RO    |     1(0)      |  Fifo level up from channel 1
+     |     |  [20]     |  FLU0      |    RO    |     1(0)      |  Fifo level up from channel 0
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [19:18]  |  reserved  |    RO    |     2(0)      |  reserved
+     |     |  [17]     |  FF1       |    RO    |     1(0)      |  Full fifo from channel 1
+     |     |  [16]     |  FF0       |    RO    |     1(0)      |  Full fifo from channel 0
+=============================================================================================================
+  8  |  4  |  [15:14]  |  reserved  |    RO    |     2(0)      |  reserved
+     |     |  [13]     |  HF1 		  |    RO    |     1(0)      |  Flag comparator high data from channel 1
+     |     |  [12]     |  HF0	  	  |    RO    |     1(0)      |  Flag comparator high data from channel 0
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [11:10]  |  reserved  |    RO    |     2(0)      |  reserved
+     |     |  [9]      |  LF1		    |    RO    |     1(0)      |  Flag comparator low data from channel 1
+     |     |  [8]      |  LF0	  	  |    RO    |     1(0)      |  Flag comparator low data from channel 0
+=============================================================================================================
+  8  |  4  |  [7:6]    |  reserved  |    RO    |     2(0)      |  reserved
+     |     |  [5]      |  MF1       |    R0    |     1(0)      |  Modulator failure from channel 1
+     |     |  [4]      |  MF0       |    R0    |     1(0)      |  Modulator failure from channel 0
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [3:2]    |  reserved  |    RO    |     2(0)      |  reserved
+     |     |  [1]      |  AF1  		  |    RO    |     1(0)      |  Asknewledge filter flag from channel 1
+     |     |  [0]      |  AF0  		  |    RO    |     1(0)      |  Asknewledge filter flag from channel 0
+=============================================================================================================
 
 
 
-Register CPARMx:
-
-  bit  |    name    |  access  |  reset value  |  description
-============================================================================================================
-  0-7  |    DOSR    |   R/W    |       8(0)    |  Data oversampling ratio
-============================================================================================================
-   8   |    CEN     |   R/W    |       1(0)    |  Comparator enable
-   9   |	  SEN		  |   R/W    |	     1(0)    |  Enable signed data comparator
- 10-11 |  reserved  |   R/W    |       2(0)    |  reserved
-///////////////////////////////////////////////|
- 12-13 |    ST      |   R/W    |       2(0)    |  Structure comparator filter
- 14-15 |  reserved  |   R/W    |       2(0)    |  reserved
-============================================================================================================
-  16   |    ILEN    |   R/W    |       1(0)    |  Enable interrupt comparator for mode low threshold
-  17   |    IHEN    |   R/W    |       1(0)    |  Enable interrupt comparator for mode high threshold
- 18-19 |  reserved  |   RO     |       2(0)    |  reserved
-///////////////////////////////////////////////|
-  20   |   LCLRFLG  |   R/W    |       1(0)    |  Hardware clear flags comparators for mode low threshold
-  21   |   HCLRFLG  |   R/W    |       1(0)    |  Hardware clear flags comparators for mode high threshold
- 22-23 |  reserved  |   RO     |       2(0)    |  reserved
-============================================================================================================
- 24-31 |  reserved  |   RO     |       8(0)    |  reserved
-============================================================================================================
 
 
+Register IFLGCLR (offset = 0x04):
 
-Register CMPLx:
+   bits    |    bit    |    name    |  access  |  reset value  |  description
+=============================================================================================================
+  8  |  4  |  [31]     |  IRQF      |    WO    |     1(0)      |  Interrupt requesten flag
+     |     |  [30:28]  |  reserved  |    RO    |     3(0)      |  reserved
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [27:24]  |  reserved  |    RO    |     4(0)      |  reserved
+=============================================================================================================
+  8  |  4  |  [23:22]  |  reserved  |    RO    |     2(0)      |  reserved
+     |     |  [21]     |  FLU1      |    WO    |     1(0)      |  Fifo level up from channel 1
+     |     |  [20]     |  FLU0      |    WO    |     1(0)      |  Fifo level up from channel 0
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [19:18]  |  reserved  |    RO    |     2(0)      |  reserved
+     |     |  [17]     |  FF1       |    WO    |     1(0)      |  Full fifo from channel 1
+     |     |  [16]     |  FF0       |    WO    |     1(0)      |  Full fifo from channel 0
+=============================================================================================================
+  8  |  4  |  [15:14]  |  reserved  |    RO    |     2(0)      |  reserved
+     |     |  [13]     |  HF1       |    WO    |     1(0)      |  Flag comparator high data from channel 1
+     |     |  [12]     |  HF0       |    WO    |     1(0)      |  Flag comparator high data from channel 0
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [11:10]  |  reserved  |    RO    |     2(0)      |  reserved
+     |     |  [9]      |  LF1       |    WO    |     1(0)      |  Flag comparator low data from channel 1
+     |     |  [8]      |  LF0       |    WO    |     1(0)      |  Flag comparator low data from channel 0
+=============================================================================================================
+  8  |  4  |  [7:6]    |  reserved  |    RO    |     2(0)      |  reserved
+     |     |  [5]      |  MF1       |    WO    |     1(0)      |  Modulator failure from channel 1
+     |     |  [4]      |  MF0       |    WO    |     1(0)      |  Modulator failure from channel 0
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [3:2]    |  reserved  |    RO    |     2(0)      |  reserved
+     |     |  [1]      |  AF1       |    WO    |     1(0)      |  Asknewledge filter flag from channel 1
+     |     |  [0]      |  AF0       |    WO    |     1(0)      |  Asknewledge filter flag from channel 0
+=============================================================================================================
 
-  bit  |    name    |  access  |  reset value  |  description
-===============================================================================
-  0-31 |    CMPL    |   R/W    |     32(0)     |  Comparator threshold low
-===============================================================================
+
+
+
+
+Register CTL (offset = 0x08):
+
+   bits    |    bit    |    name    |  access  |  reset value  |  description
+=============================================================================================================
+  8  |  4  |  [31:28]  |  reserved  |   RO     |      4(0)     |  reserved
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [27:24]  |  reserved  |   RO     |      4(0)     |  reserved
+=============================================================================================================
+  8  |  4  |  [23:20]  |  reserved  |   RO     |      4(0)     |  reserved
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [19:16]  |  reserved  |   RO     |      4(0)     |  reserved
+=============================================================================================================
+  8  |  4  |  [15:12]  |  reserved  |   RO     |      4(0)     |  reserved
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [11:8]   |  reserved  |   RO     |      4(0)     |  reserved
+=============================================================================================================
+  8  |  4  |  [7:5]    |  reserved  |   RO     |      3(0)     |  reserved
+     |     |  [4]      |  MIEN      |   R/W    |      1(0)     |  Master interrupt enable
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [3:2]    |  reserved  |   RO     |      2(0)     |  reserved
+     |     |  [1]      |  CLKEN     |   R/W    |      1(0)     |  System clock enable     
+     |     |  [0]      |  RSTEN     |   R/W    |      1(0)     |  System reset enable       
+=============================================================================================================
+
+
+
+
+
+Register INPARMx (offset = 0x0C , 0x10):
+
+   bits    |    bit    |    name    |  access  |  reset value  |  description
+=============================================================================================================
+  8  |  4  |  [31:28]  |  reserved  |   RO     |      4(0)     |  reserved
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [27:24]  |  reserved  |   RO     |      4(0)     |  reserved
+=============================================================================================================
+  8  |  4  |  [23:20]  |  reserved  |   RO     |      4(0)     |  reserved
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [19:16]  |  reserved  |   RO     |      4(0)     |  reserved
+=============================================================================================================
+  8  |  4  |  [15:12]  |  reserved  |   RO     |      4(0)     |  reserved
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [11:9]   |  reserved  |   RO     |      3(0)     |  reserved
+     |     |  [8]      |  MFIE      |   R/W    |      1(0)     |  Modulator failure enable
+=============================================================================================================
+     |  4  |  [7:4]    |  DIV       |   R/W    |      4(0)     |  Ratio system clock dividing for mode 3
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [3:2]    |  reserved  |   RO     |      2(0)     |  reserved
+     |     |  [1:0]    |  MOD       |   R/W    |      2(0)     |  Input mode
+=============================================================================================================
+          
+          
+
+
+
+Register DFPARMx (offset = 0x14 , 0x18):
+
+   bits    |    bit    |    name    |  access  |  reset value  |  description
+=============================================================================================================
+  8  |  4  |  [31:28]  |  reserved  |   RO     |      4(0)     |  reserved
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [27:24]  |  reserved  |   RO     |      4(0)     |  reserved
+=============================================================================================================
+  8  |     |  [23:21]  |  reserved  |   RO     |      3(0)     |  reserved
+     |     |  [20:16]  |  SH        |   R/W    |      5(0)     |  Value shift bits for data filter
+=============================================================================================================
+  8  |  4  |  [15:14]  |  reserved  |   RO     |      2(0)     |  reserved
+     |     |  [13:12]  |  ST        |   R/W    |      2(0)     |  Structure data filter
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [11:10]  |  reserved  |   RO     |      2(0)     |  reserved
+     |     |  [9]      |  AEN       |   R/W    |      1(0)     |  Asknewledge enable
+     |     |  [8]      |  FEN       |   R/W    |      1(0)     |  Filter enable
+=============================================================================================================
+  8  |     |  [7:0]    |  DOSR      |   R/W    |      8(0)     |  Data oversampling ratio
+=============================================================================================================
+
+
+
+
+
+Register CPARMx (offset = 0x1C , 0x20):
+
+   bits    |    bit    |    name    |  access  |  reset value  |  description
+=============================================================================================================
+  8  |  4  |  [31:28]  |  reserved  |   RO     |      4(0)     |  reserved
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [27:24]  |  reserved  |   RO     |      4(0)     |  reserved
+=============================================================================================================
+  8  |  4  |  [23:22]  |  reserved  |   RO     |      2(0)     |  reserved
+     |     |  [21]     |  HCLRFLG   |   R/W    |      1(0)     |  Hardware clear flags comparators for mode high threshold
+     |     |  [20]     |  LCLRFLG   |   R/W    |      1(0)     |  Hardware clear flags comparators for mode low threshold
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [19:18]  |  reserved  |   RO     |      2(0)     |  reserved
+     |     |  [17]     |  IHEN      |   R/W    |      1(0)     |  Enable interrupt comparator for mode high threshold
+     |     |  [16]     |  ILEN      |   R/W    |      1(0)     |  Enable interrupt comparator for mode low threshold
+=============================================================================================================
+  8  |  4  |  [15:14]  |  reserved  |   RO     |      2(0)     |  reserved
+     |     |  [13:12]  |  ST        |   R/W    |      2(0)     |  Structure comparator filter
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [11:10]  |  reserved  |   RO     |      2(0)     |  reserved
+     |     |  [9]      |  SEN	  	  |   R/W    |	    1(0)     |  Enable signed data comparator
+     |     |  [8]      |  CEN       |   R/W    |      1(0)     |  Comparator enable
+=============================================================================================================
+  8  |     |  [7:0]    |  DOSR      |   R/W    |      8(0)     |  Data oversampling ratio
+=============================================================================================================
+
+
+
+
+
+Register CMPLx (offset = 0x24 , 0x28):
+
+   bits    |    bit    |    name    |  access  |  reset value  |  description
+=============================================================================================================
+  32 |     |  [31:0]   |  CMPL      |   R/W    |     32(0)     |  Comparator threshold low
+=============================================================================================================
+
+ 
  
   
   
-Register CMPHx:
+Register CMPHx (offset = 0x2C , 0x30):
 
-  bit  |    name    |  access  |  reset value  |  description
-===============================================================================
-  0-31 |    CMPH    |   R/W    |     32(0)     |  Comparator threshold high
-===============================================================================
-
-
-
-Register FDATAx:
-
-  bit  |    name    |  access  |  reset value  |  description
-===============================================================================
-  0-31 |    DATA    |    RO    |     32(0)     |  filter data
-===============================================================================
+   bits    |    bit    |    name    |  access  |  reset value  |  description
+=============================================================================================================
+  32 |     |  [31:0]   |  CMPH      |   R/W    |     32(0)     |  Comparator threshold high
+=============================================================================================================
 
 
 
-Register CDATAx:
 
-  bit  |    name    |  access  |  reset value  |  description
-===============================================================================
-  0-31 |    DATA    |    RO    |     32(0)     |  comparator data
-===============================================================================
+
+Register FCTLx (offset = 0x34 , 0x38):
+
+   bits    |    bit    |    name    |  access  |  reset value  |  description
+=============================================================================================================
+  8  |  4  |  [31:28]  |  reserved  |   RO     |      4(0)     |  reserved
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [27:24]  |  reserved  |   RO     |      4(0)     |  reserved
+=============================================================================================================
+  8  |  4  |  [23:20]  |  reserved  |   RO     |      4(0)     |  reserved
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [19:16]  |  reserved  |   RO     |      4(0)     |  reserved
+=============================================================================================================
+  8  |  4  |  [15:14]  |  reserved  |   RO     |      2(0)     |  reserved
+     |     |  [13]     |  IFLU      |   R/W    |      1(0)     |  Enable interrupt for level up
+     |     |  [12]     |  IFF       |   R/W    |      1(0)     |  Enable interrupt, as fifo is full
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [11:9]   |  reserved  |   RO     |      3(0)     |  reserved
+     |     |  [8]      |  EN        |   R/W    |      1(0)     |  Fifo enable
+=============================================================================================================
+  8  |  4  |  [7:4]    |  ILVL      |   R/W    |      4(0)     |  Interrupt level
+     |-----|-----------|------------|----------|---------------|
+     |  4  |  [3:0]    |  STAT      |   RO     |      4(0)     |  Status fifo
+=============================================================================================================
+
+
+
+
+
+Register FDATAx (offset = 0x3C , 0x40)::
+
+   bits    |    bit    |    name    |  access  |  reset value  |  description
+=============================================================================================================
+  32 |     |  [31:0]   |  DATA      |   R/W    |     32(0)     |  Filter signed data
+=============================================================================================================
+
+
+
+
+
+Register CDATAx (offset = 0x44 , 0x48):
+
+   bits    |    bit    |    name    |  access  |  reset value  |  description
+=============================================================================================================
+  32 |     |  [31:0]   |  DATA      |   R/W    |     32(0)     |  Comparator data
+=============================================================================================================
+
 

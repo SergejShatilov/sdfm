@@ -41,9 +41,9 @@ endtask
 
 //===========================================
 // register INPARM0
-task writeINPARM0(input [1:0] MOD, input [3:0] DIV);
+task writeINPARM0(input [1:0] MOD, input [3:0] DIV, input MFIE);
   begin
-    write(16'h070C, {24'h0000_00, DIV, 2'b00, MOD});
+    write(16'h070C, {23'h0000_00, MFIE, DIV, 2'b00, MOD});
   end
 endtask
 
@@ -51,9 +51,9 @@ endtask
 
 //===========================================
 // register INPARM1
-task writeINPARM1(input [1:0] MOD, input [3:0] DIV);
+task writeINPARM1(input [1:0] MOD, input [3:0] DIV, input MFIE);
   begin
-    write(16'h0710, {24'h0000_00, DIV, 2'b00, MOD});
+    write(16'h0710, {23'h0000_00, MFIE, DIV, 2'b00, MOD});
   end
 endtask
 
@@ -74,6 +74,16 @@ endtask
 task writeDFPARM1(input [7:0] DOSR, input FEN, input AEN, input [1:0] ST, input [4:0] SH);
   begin
     write(16'h0718, {11'h000, SH, 2'b00, ST, 2'b00, AEN, FEN, DOSR});
+  end
+endtask
+
+
+
+//===========================================
+// register FCTL0
+task writeFCTL0(input [3:0] ILVL, input EN, input IFF, input IFLU);
+  begin
+    write(16'h0734, {18'h00000, IFLU, IFF, 3'h0, EN, ILVL, 4'h0});
   end
 endtask
 

@@ -21,7 +21,7 @@
 `define FSR_0  44.1e3 // Frequence sampling
 `define FSR_1  44.1e3
 
-`define FOSR_0 32    // Filter oversampling ratio
+`define FOSR_0 16    // Filter oversampling ratio
 `define FOSR_1 256
 
 module testbench;
@@ -167,11 +167,20 @@ module testbench;
       #300_000;
     `endif
     #10_000;
-    writeCTL(1, 1, 0);
+    writeCTL(1, 1, 1);
     #10_000;
-    writeINPARM0(2, 0);
+    writeINPARM0(2, 0, 0);
     #10_000;
-    writeDFPARM0(31, 1, 0, 0, 0);
+    writeDFPARM0(15, 1, 0, 0, 0);
+    #100_000;
+    writeFCTL0(7, 1, 1, 0);
+    #100_000;
+    read(16'h073C);
+    #600_000;
+    writeFCTL0(7, 0, 0, 0);
+    #100_000;
+    write(16'h0704, 32'hFFFF_FFFF);
+
 
   end
 

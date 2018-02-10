@@ -14,6 +14,8 @@ module CHANNEL
   input  wire [1:0]  reg_inmod,         // input mode
   input  wire [3:0]  reg_indiv,         // ratio system clock dividing for mode 3
 
+  output wire        detect_err,        // signal detecter error clock input
+
   // data filter
   input  wire [7:0]  reg_filtdec,       // data filter decimation ratio (oversampling ratio)
   input  wire        reg_filten,        // data filter enable
@@ -40,8 +42,17 @@ module CHANNEL
   output wire [31:0] comp_data_out,     // comparator data output
   output wire        comp_data_update,  // signal comparator data update
   
-  output wire        comp_data_low,		// signal comparator data < low threshold
-  output wire        comp_data_high		// signal comparator data >= high threshold
+  output wire        comp_data_low,		  // signal comparator data < low threshold
+  output wire        comp_data_high,	  // signal comparator data >= high threshold
+
+  // fifo
+  input  wire        reg_fifoen,        // fifo enable
+  input  wire [3:0]  reg_fifoilvl,      // fifo interrupt level
+  input  wire        fifo_rd,           // signal read FDATA register
+
+  output wire [3:0]  fifo_stat,         // status fifo
+  output wire        fifo_lvlup,        // signal level up fifo status
+  output wire        fifo_full          // signal full fifo status
 );
 
   //-----------------------------------------------------------
@@ -57,7 +68,9 @@ module CHANNEL
     .reg_indiv(reg_indiv),
 
     .sd_dsd_in(sd_dsd_in),
-    .sd_clk_in(sd_clk_in)
+    .sd_clk_in(sd_clk_in),
+
+    .detect_err(detect_err)
   );
 
 
@@ -76,13 +89,21 @@ module CHANNEL
     .reg_filten (reg_filten),
     .reg_filtst (reg_filtst),
     .reg_filtsh (reg_filtsh),
+
+    .reg_fifoen  (reg_fifoen),
+    .reg_fifoilvl(reg_fifoilvl),
+    .fifo_rd     (fifo_rd),
+
+    .fifo_stat (fifo_stat),
+    .fifo_lvlup(fifo_lvlup),
+    .fifo_full (fifo_full),
     
     .filt_data_out   (filt_data_out),
     .filt_data_update(filt_data_update)
   );
-  
-  
-  
+
+
+
   //-----------------------------------------------------------
   // Comparator unit
   COMP comp

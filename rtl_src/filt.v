@@ -14,7 +14,16 @@ module FILT
   input  wire        reg_filten,        // data filter enable
   input  wire [1:0]  reg_filtst,        // data filter structure
   input  wire [4:0]  reg_filtsh,        // value shift bits for data filter
-  
+
+  // fifo
+  input  wire        reg_fifoen,        // fifo enable
+  input  wire [3:0]  reg_fifoilvl,      // fifo interrupt level
+  input  wire        fifo_rd,           // signal read FDATA register
+
+  output wire [3:0]  fifo_stat,         // status fifo
+  output wire        fifo_lvlup,        // signal level up fifo status
+  output wire        fifo_full,         // signal full fifo status
+
   output wire [31:0] filt_data_out,     // filter data output
   output wire        filt_data_update   // signal filter data update
 );
@@ -195,8 +204,31 @@ module FILT
                         (reg_filtsh == 5'h16) ? {{22{filt_data[31]}}, filt_data[31:22]} :     // 22
                         (reg_filtsh == 5'h17) ? {{23{filt_data[31]}}, filt_data[31:23]} :     // 23
                         {{24{filt_data[31]}}, filt_data[31:24]};                              // >= 24
-  
-  assign filt_data_out = reg_filten ? filt_data_sh : 32'h0000_0000;
+
+  wire [31:0] fifo_data_out;
+
+  FIFO fifo
+  (
+    .SYSRSTn(SYSRSTn),
+    .SYSCLK (SYSCLK),
+
+    .reg_fifoen  (reg_fifoen),
+    .reg_fifoilvl(reg_fifoilvl),
+    .fifo_rd     (fifo_rd),
+
+    .fifo_data_in    (filt_data_sh),
+    .fifo_data_update(filt_data_update),
+
+    .fifo_stat (fifo_stat),
+    .fifo_lvlup(fifo_lvlup),
+    .fifo_full (fifo_full),
+
+    .fifo_data_out(fifo_data_out)
+  );
+
+
+
+  assign filt_data_out = reg_filten ? fifo_data_out : 32'h0000_0000;
   
 
       
