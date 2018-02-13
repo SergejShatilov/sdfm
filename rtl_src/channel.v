@@ -77,7 +77,7 @@ module CHANNEL
 
   //-----------------------------------------------------------
   // Filter data unit
-  FILT filt
+  DFILT dfilt
   (
     .SYSRSTn(SYSRSTn),
     .SYSCLK (SYSCLK),

@@ -1,5 +1,4 @@
-//`define ICARUS
-//`define WINDOWS
+`define ICARUS
 
 `ifdef ICARUS
   `timescale 1ns / 1ns
@@ -28,9 +27,9 @@ module testbench;
 
   initial begin
     `ifdef ICARUS
-      $dumpfile("C:/iverilog/sdfm/sim/work/out.vcd");
+      $dumpfile("./out.vcd");
       $dumpvars(0, testbench);
-      #1500_000 $finish;
+      #50_000 $finish;
     `else
       #2000_000 $finish;
     `endif
@@ -109,15 +108,9 @@ module testbench;
   
   //=================================
   // Modulators
-  `ifdef WINDOWS
-    `include "sim/testbenches/example/tb_sdm/tb_sdm_0.v"
-    `include "sim/testbenches/example/tb_sdm/tb_sdm_1.v"
-    `include "sim/testbenches/example/tb_sdm/tb_math.v"
-  `else
-    `include "../testbenches/example/tb_sdm/tb_sdm_0.v"
-    `include "../testbenches/example/tb_sdm/tb_sdm_1.v"
-    `include "../testbenches/example/tb_sdm/tb_math.v"
-  `endif
+  `include "../testbenches/example/tb_sdm/tb_sdm_0.v"
+  `include "../testbenches/example/tb_sdm/tb_sdm_1.v"
+  `include "../testbenches/example/tb_sdm/tb_math.v"
 
   //=================================
   // Demodulator
