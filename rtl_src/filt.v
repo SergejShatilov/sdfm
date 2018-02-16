@@ -21,7 +21,7 @@ module FILT #(parameter signed_enable_sel = 0)
   input  wire        osr,           // oversampling ratio
   input  wire        signed_en,     // signed data comparator enable
   input  wire [1:0]  structure,     // data filter structure
-  output wire [31:0] filt_data_out  // filter data output
+  output wire [31:0] data_out       // data output
 );
 
 
@@ -117,6 +117,6 @@ module FILT #(parameter signed_enable_sel = 0)
                    (structure == 2'b01) ? QN1 :
                    (structure == 2'b10) ? QN2 : QN3;
 
-  assign filt_data_out = fir_out;
+  assign data_out = fir_out;
       
 endmodule

@@ -1,6 +1,16 @@
-//===============================================
-// Sigma-delta filter module (Top module)
-//===============================================
+/*
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *  @file: sdfm.v
+ *
+ *  @brief: sigma-delta filter module (top - module)
+ *
+ *  @author: Shatilov Sergej
+ *
+ *  @date: 14.02.2018
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*/
 
 module SDFM
 (
@@ -20,71 +30,54 @@ module SDFM
   wire SYSCLK;    // system clock
   
   // rcu
-  wire reg_rsten; // system reset enable
-  wire reg_clken; // system clock enable
+  wire rcu_rsten_reg; // system reset enable
+  wire rcu_clken_reg; // system clock enable
 
-  // input controls
-  wire [3:0]  reg_inmodx;  // input mode
-  wire [7:0]  reg_indivx;  // ratio system clock dividing for mode 3
-
-  wire [1:0]  detect_err;  // signal detecter error clock input
+  // icu
+  wire [3:0]  icu_mod_regx;     // input mode
+  wire [7:0]  icu_div_regx;     // ratio system clock dividing for mode 3
+  wire [1:0]  icu_err_signal;   // signal detecter error clock input
 
   // data filters
-  wire [15:0] reg_filtdecx;      // data filter decimation ratio (oversampling ratio)
-  wire [1:0]  reg_filtenx;       // data filter enable
-  wire [1:0]  reg_filtaskx;      // data filter asknewledge enable
-  wire [3:0]  reg_filtstx;       // data filter structure
-  wire [9:0]  reg_filtshx;       // value shift bits for data filter
-  
-  wire [63:0] filt_data_outx;    // filter data output
-  wire [1:0]  filt_data_updatex; // signal filter data update
+  wire [15:0] dfilt_dec_regx;         // data filter decimation ratio (oversampling ratio)
+  wire [1:0]  dfilt_en_regx;          // data filter enable
+  wire [3:0]  dfilt_st_regx;          // data filter structure
+  wire [9:0]  dfilt_sh_regx;          // value shift bits for data filter
+  wire [63:0] dfilt_data_outx;        // filter data output
+  wire [1:0]  dfilt_update_signalx;   // signal filter data update
   
   // comparators
-  wire [15:0] reg_compdecx;       // comparator data decimation ratio (oversampling ratio)
-  wire [3:0]  reg_compmodx;       // input mode
-  wire [7:0]  reg_compdivx;       // ratio system clock dividing for mode 3
-  wire [1:0]  reg_compenx;        // comparator enable
-  wire [1:0]  reg_compsenx;       // signed data comparator enable
-  wire [3:0]  reg_compstx;        // comparator filter structure
-  wire [1:0]  reg_compilenx;      // enable interrupt comparator for mode low threshold
-  wire [1:0]  reg_compihenx;      // enable interrupt comparator for mode high threshold
-  wire [1:0]  reg_complclrflgx;   // hardware clear flags comparators for mode low threshold
-  wire [1:0]  reg_comphclrflgx;   // hardware clear flags comparators for mode high threshold
-  
-  wire [63:0] reg_compltrdx;	    // comparator value low threshold
-  wire [63:0] reg_comphtrdx;		  // comparator value high threshold
-  
-  wire [63:0] comp_data_outx;     // comparator data output
-  wire [1:0]  comp_data_updatex;  // signal comparator data update
-
-  wire [1:0]  comp_data_lowx;     // signal comparator data < low threshold
-  wire [1:0]  comp_data_highx;	  // signal comparator data >= high threshold
+  wire [15:0] comp_dec_regx;        // comparator data decimation ratio (oversampling ratio)
+  wire [1:0]  comp_en_regx;         // comparator enable
+  wire [1:0]  comp_signed_regx;     // signed data comparator enable
+  wire [3:0]  comp_st_regx;         // comparator filter structure
+  wire [63:0] comp_ltrd_regx;	      // comparator value low threshold
+  wire [63:0] comp_htrd_regx;		    // comparator value high threshold
+  wire [63:0] comp_data_outx;       // comparator data output
+  wire [1:0]  comp_update_signalx;  // signal comparator data update
+  wire [1:0]  comp_low_signalx;     // signal comparator data < low threshold
+  wire [1:0]  comp_high_signalx;	  // signal comparator data >= high threshold
 
   // fifo
-  wire [1:0]  reg_fifoenx;   // fifo enable
-  wire [7:0]  reg_fifoilvlx; // fifo interrupt level
-  wire [1:0]  fifo_rdx;      // signal read FDATA register
-
-  wire [7:0]  fifo_statx;    // status fifo
-  wire [1:0]  fifo_lvlupx;   // signal level up fifo status
-  wire [1:0]  fifo_fullx;    // signal full fifo status
+  wire [1:0]  fifo_en_regx;           // fifo enable
+  wire [7:0]  fifo_level_regx;        // fifo interrupt level
+  wire [1:0]  fifo_rd_signalx;        // signal read FDATA register
+  wire [7:0]  fifo_statx;             // status fifo
+  wire [1:0]  fifo_levelup_signalx;   // signal level up fifo status
+  wire [1:0]  fifo_full_signalx;      // signal full fifo status
 
   
-  //===========================================================================================
   // Reset and clock unit
   RCU rcu
   (
-    .EXTRSTn  (EXTRSTn),
-    .EXTCLK   (EXTCLK),
-    .reg_rsten(reg_rsten),
-    .reg_clken(reg_clken),
-    .SYSRSTn  (SYSRSTn),
-    .SYSCLK   (SYSCLK)
+    .EXTRSTn(EXTRSTn),
+    .EXTCLK (EXTCLK),
+    .rsten  (rcu_rsten_reg),
+    .clken  (rcu_clken_reg),
+    .SYSRSTn(SYSRSTn),
+    .SYSCLK (SYSCLK)
   );
   
-  
-  
-  //===========================================================================================
   // Registers map
   REGMAP regmap
   (
@@ -100,57 +93,43 @@ module SDFM
     .IRQ    (IRQ),
 
     // rcu
-    .reg_rsten(reg_rsten),
-    .reg_clken(reg_clken),
+    .rcu_rsten_reg(rcu_rsten_reg),
+    .rcu_clken_reg(rcu_clken_reg),
 
     // input controls
-    .reg_inmodx(reg_inmodx),
-    .reg_indivx(reg_indivx),
-
-    .detect_err(detect_err),
+    .icu_mod_regx   (icu_mod_regx),
+    .icu_div_regx   (icu_div_regx),
+    .icu_err_signalx(icu_err_signalx),
 
     // data filters
-    .reg_filtdecx(reg_filtdecx),
-    .reg_filtenx (reg_filtenx),
-    .reg_filtaskx(reg_filtaskx),
-    .reg_filtstx (reg_filtstx),
-    .reg_filtshx (reg_filtshx),
-    
-    .filt_data_outx   (filt_data_outx),
-    .filt_data_updatex(filt_data_updatex),
+    .dfilt_dec_regx      (dfilt_dec_regx),
+    .dfilt_en_regx       (dfilt_en_regx),
+    .dfilt_st_regx       (dfilt_st_regx),
+    .dfilt_sh_regx       (dfilt_sh_regx),
+    .dfilt_data_outx     (dfilt_data_outx),
+    .dfilt_update_signalx(dfilt_update_signalx),
 
     // comparators
-    .reg_compdecx    (reg_compdecx),
-    .reg_compenx     (reg_compenx),
-	  .reg_compsenx    (reg_compsenx),
-	  .reg_compstx     (reg_compstx),
-	  .reg_compilenx   (reg_compilenx),
-    .reg_compihenx   (reg_compihenx),
-	  .reg_complclrflgx(reg_complclrflgx),
-    .reg_comphclrflgx(reg_comphclrflgx),
-
-	  .reg_compltrdx(reg_compltrdx),
-	  .reg_comphtrdx(reg_comphtrdx),
-	 
-	  .comp_data_outx   (comp_data_outx),
-    .comp_data_updatex(comp_data_updatex),
-	
-	  .comp_data_lowx (comp_data_lowx),
-	  .comp_data_highx(comp_data_highx),
+    .comp_dec_regx      (comp_dec_regx),
+    .comp_en_regx       (comp_en_regx),
+	  .comp_signed_regx   (comp_signed_regx),
+	  .comp_st_regx       (comp_st_regx),
+	  .comp_ltrd_regx     (comp_ltrd_regx),
+	  .comp_htrd_regx     (comp_htrd_regx),
+	  .comp_data_outx     (comp_data_outx),
+    .comp_update_signalx(comp_update_signalx),
+	  .comp_low_signalx   (comp_low_signalx),
+	  .comp_high_signalx  (comp_high_signalx),
 
     // fifo
-    .reg_fifoenx  (reg_fifoenx),
-    .reg_fifoilvlx(reg_fifoilvlx),
-    .fifo_rdx     (fifo_rdx),
-
-    .fifo_statx (fifo_statx),
-    .fifo_lvlupx(fifo_lvlupx),
-    .fifo_fullx (fifo_fullx)
+    .fifo_en_regx        (fifo_en_regx),
+    .fifo_level_regx     (fifo_level_regx),
+    .fifo_rd_signalx     (fifo_rd_signalx),
+    .fifo_statx          (fifo_statx),
+    .fifo_levelup_signalx(fifo_levelup_signalx),
+    .fifo_full_signalx   (fifo_full_signalx)
   );
 
-  
-  
-  //===========================================================================================
   // Sigma-delta demodulator channels
   genvar i;
   generate
@@ -166,48 +145,37 @@ module SDFM
             .SDCLK  (SDCLK[i]),
 
             // input control
-            .reg_inmod(reg_inmodx[1 + i * 2 : i * 2]),
-            .reg_indiv(reg_indivx[3 + i * 4 : i * 4]),
-
-            .detect_err(detect_err[i]),
+            .icu_mod_reg   (icu_mod_regx  [1 + i * 2 : i * 2]),
+            .icu_div_reg   (icu_div_regx  [3 + i * 4 : i * 4]),
+            .icu_err_signal(icu_err_signal[i]),
 
             // data filter
-            .reg_filtdec(reg_filtdecx[7 + i * 8 : i * 8]),
-            .reg_filten (reg_filtenx [i]),
-            .reg_filtask(reg_filtaskx[i]),
-            .reg_filtst (reg_filtstx [1 + i * 2 : i * 2]),
-            .reg_filtsh (reg_filtshx [4 + i * 5 : i * 5]),
-            
-            .filt_data_out   (filt_data_outx   [31 + 32 * i : 32 * i]),
-            .filt_data_update(filt_data_updatex[i]),
+            .dfilt_dec_reg      (dfilt_dec_regx      [7 + i * 8 : i * 8]),
+            .dfilt_en_reg       (dfilt_en_regx       [i]),
+            .dfilt_st_reg       (dfilt_st_regx       [1 + i * 2 : i * 2]),
+            .dfilt_sh_reg       (dfilt_sh_regx       [4 + i * 5 : i * 5]),
+            .dfilt_data_out     (dfilt_data_outx     [31 + 32 * i : 32 * i]),
+            .dfilt_update_signal(dfilt_update_signalx[i]),
 
             // comparator
-            .reg_compdec    (reg_compdecx    [7 + i * 8 : i * 8]),
-            .reg_compen     (reg_compenx     [i]),
-			      .reg_compsen    (reg_compsenx    [i]),
-			      .reg_compst     (reg_compstx     [1 + i * 2 : i * 2]),
-			      .reg_compilen   (reg_compilenx   [i]),
-            .reg_compihen   (reg_compihenx   [i]),
-			      .reg_complclrflg(reg_complclrflgx[i]),
-            .reg_comphclrflg(reg_comphclrflgx[i]),
-			
-			      .reg_compltrd(reg_compltrdx[31 + 32 * i : 32 * i]),
-			      .reg_comphtrd(reg_comphtrdx[31 + 32 * i : 32 * i]),
-			
-			      .comp_data_out   (comp_data_outx   [31 + 32 * i : 32 * i]),
-            .comp_data_update(comp_data_updatex[i]),
-			
-			      .comp_data_low (comp_data_lowx [i]),
-			      .comp_data_high(comp_data_highx[i]),
+            .comp_dec_reg      (comp_dec_regx      [7 + i * 8 : i * 8]),
+            .comp_en_reg       (comp_en_regx       [i]),
+			      .comp_signed_reg   (comp_signed_regx   [i]),
+			      .comp_st_reg       (comp_st_regx       [1 + i * 2 : i * 2]),
+			      .comp_ltrd_reg     (comp_ltrd_regx     [31 + 32 * i : 32 * i]),
+			      .comp_htrd_reg     (comp_htrd_regx     [31 + 32 * i : 32 * i]),
+			      .comp_data_out     (comp_data_outx     [31 + 32 * i : 32 * i]),
+            .comp_update_signal(comp_update_signalx[i]),
+			      .comp_low_signal   (comp_low_signalx   [i]),
+			      .comp_high_signal  (comp_high_signalx  [i]),
 
             // fifo
-            .reg_fifoen  (reg_fifoenx  [i]),
-            .reg_fifoilvl(reg_fifoilvlx[3 + 4 * i : 4 * i]),
-            .fifo_rd     (fifo_rdx     [i]),
-
-            .fifo_stat (fifo_statx [3 + 4 * i : 4 * i]),
-            .fifo_lvlup(fifo_lvlupx[i]),
-            .fifo_full (fifo_fullx [i])
+            .fifo_en_reg        (fifo_en_regx        [i]),
+            .fifo_level_reg     (fifo_level_regx     [3 + 4 * i : 4 * i]),
+            .fifo_rd_signal     (fifo_rd_signalx     [i]),
+            .fifo_stat          (fifo_statx          [3 + 4 * i : 4 * i]),
+            .fifo_levelup_signal(fifo_levelup_signalx[i]),
+            .fifo_full_signal   (fifo_full_signalx   [i])
           );
         end
     end

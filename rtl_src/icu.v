@@ -9,13 +9,13 @@ module ICU
   input  wire        DSDIN,      // direct stream data input
   input  wire        SDCLK,      // sigma-delta clock synchronization
   
-  input  wire [1:0]  reg_inmod,  // input mode
-  input  wire [3:0]  reg_indiv,  // ratio system clock dividing for mode 3
+  input  wire [1:0]  mod,  // input mode
+  input  wire [3:0]  div,  // ratio system clock dividing for mode 3
 
   output wire        sd_dsd_in,  // new direct stream data input
   output wire        sd_clk_in,  // new sigma-delta clock synchronization
 
-  output wire        detect_err  // signal detecter error clock input
+  output wire        err_signal  // signal detecter error clock input
 );
 
 
@@ -42,7 +42,7 @@ module ICU
   wire        mod2_rst;
   wire        mod2_err;
 
-  assign mod2_rst = !SYSRSTn || (reg_inmod != 2'b10);
+  assign mod2_rst = !SYSRSTn || (mod != 2'b10);
 
   always @ (posedge SYSCLK)
     mod2_synin <= {mod2_synin[1:0], DSDIN};
@@ -108,7 +108,7 @@ module ICU
     else if(mod2_sample)
       mod2_out <= mod2_synin[1];
 
-  assign mod2_err = !mod2_capt && (reg_inmod == 2'b10);
+  assign mod2_err = !mod2_capt && (mod == 2'b10);
 
 
   //-----------------------------------------------------------------------
@@ -117,7 +117,7 @@ module ICU
   wire [6:0] mod3_div;
   reg  [6:0] mod3_cnt;
 
-  assign mod3_div = {1'b0, reg_indiv, 2'b11};
+  assign mod3_div = {1'b0, div, 2'b11};
   assign mod3_clk = (mod3_cnt == mod3_div);
 
   always @ (negedge SYSRSTn or posedge SYSCLK)
@@ -145,21 +145,21 @@ module ICU
   always @ (negedge SYSRSTn or posedge SYSCLK)
     if(!SYSRSTn)
       detect_err_cnt <= 8'h00;
-    else if(edge_clk_in | (reg_inmod == 2'b10))
+    else if(edge_clk_in | (mod == 2'b10))
       detect_err_cnt <= 0;
     else if(!detect_err_cnt[7])
       detect_err_cnt <= detect_err_cnt + 8'h01;
   
-  assign detect_err = detect_err_cnt[7] | mod2_err;
+  assign err_signal = detect_err_cnt[7] | mod2_err;
   
   
   
   //-----------------------------------------------------------------------
   // MUX modes
-  assign sd_dsd_in = (reg_inmod == 2'b10) ? mod2_out : DSDIN;
+  assign sd_dsd_in = (mod == 2'b10) ? mod2_out : DSDIN;
   
-  assign sd_clk_in = (reg_inmod == 2'b00) ?  SDCLK       :
-                     (reg_inmod == 2'b01) ? !SDCLK       :
-                     (reg_inmod == 2'b10) ?  mod2_sample : mod3_clk;
+  assign sd_clk_in = (mod == 2'b00) ?  SDCLK       :
+                     (mod == 2'b01) ? !SDCLK       :
+                     (mod == 2'b10) ?  mod2_sample : mod3_clk;
       
 endmodule

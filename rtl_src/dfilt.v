@@ -14,106 +14,95 @@
 
 module DFILT
 (
-  input  wire        SYSRSTn,           // system reset
-  input  wire        SYSCLK,            // system clock
+  input  wire        SYSRSTn,             // system reset
+  input  wire        SYSCLK,              // system clock
 
-  input  wire        sd_dsd_in,         // new direct stream data input
-  input  wire        sd_clk_in,         // new sigma-delta clock synchronization
+  input  wire        sd_dsd_in,           // new direct stream data input
+  input  wire        sd_clk_in,           // new sigma-delta clock synchronization
   
-  input  wire [7:0]  reg_filtdec,       // filter decimation ratio (oversampling ratio)
-  input  wire        reg_filten,        // data filter enable
-  input  wire [1:0]  reg_filtst,        // data filter structure
-  input  wire [4:0]  reg_filtsh,        // value shift bits for data filter
+  input  wire [7:0]  dfilt_dec_reg,       // filter decimation ratio (oversampling ratio)
+  input  wire        dfilt_en_reg,        // data filter enable
+  input  wire [1:0]  dfilt_st_reg,        // data filter structure
+  input  wire [4:0]  dfilt_sh_reg,        // value shift bits for data filter
 
-  // fifo
-  input  wire        reg_fifoen,        // fifo enable
-  input  wire [3:0]  reg_fifoilvl,      // fifo interrupt level
-  input  wire        fifo_rd,           // signal read FDATA register
+  input  wire        fifo_en_reg,         // fifo enable
+  input  wire [3:0]  fifo_level_reg,      // fifo interrupt level
+  input  wire        fifo_rd_signal,      // signal read FDATA register
 
-  output wire [3:0]  fifo_stat,         // status fifo
-  output wire        fifo_lvlup,        // signal level up fifo status
-  output wire        fifo_full,         // signal full fifo status
+  output wire [3:0]  fifo_stat,           // status fifo
+  output wire        fifo_levelup_signal, // signal level up fifo status
+  output wire        fifo_full_signal,    // signal full fifo status
 
-  output wire [31:0] filt_data_out,     // filter data output
-  output wire        filt_data_update   // signal filter data update
+  output wire [31:0] dfilt_data_out,      // filter data output
+  output wire        dfilt_update_signal  // signal filter data update
 );
 
-  wire        osr;
   wire [31:0] filt_data;
   wire [31:0] shift_data;
+  wire [31:0] fifo_data;
 
-  
-  DCU dcu
-  (
-    .SYSRSTn(SYSRSTn),
-    .value_dec(reg_filtdec),
-    .clk_in(sd_clk_in),
-    .osr(osr)
-  );
-  
-  
-  FILT #(0) filt
-  (
-    .SYSRSTn(SYSRSTn),
-    .SYSCLK(SYSCLK),
-    .sd_dsd_in(sd_dsd_in),
-    .sd_clk_in(sd_clk_in),
-    .osr(osr),
-    .structure(reg_filtst),
-    .filt_data_out(filt_data)  
-  );
-  
-  
-  SHIFT shift
-  (
-    .bits(reg_filtsh),
-    .data_in(filt_data),
-    .data_out(shift_data)
-  );
-  
-  
-  
-  //-----------------------------------------------------------------------
+  wire        osr_signal;
+  reg  [2:0]  osr_reg;
+
+
   // generation signal data update
-  
-  reg [2:0] reg_osr;
-  
-  assign filt_data_update = (reg_osr[1:0] == 2'b10) && reg_filten; //FIXME: optimization
+
+  assign dfilt_update_signal = (osr_reg[1:0] == 2'b10) && dfilt_en_reg; //FIXME: optimization
   
   always @ (negedge SYSRSTn or posedge SYSCLK)
     if(!SYSRSTn)
-      reg_osr <= 3'b000;
+      osr_reg <= 3'b000;
     else
-      reg_osr <= {osr, reg_osr[2:1]};
-      
+      osr_reg <= {osr_signal, osr_reg[2:1]};
 
 
-  wire [31:0] data_fifo;
-
-  FIFO fifo
+  // decimation control unit
+  DCU dcu
   (
-    .SYSRSTn(SYSRSTn),
-    .SYSCLK (SYSCLK),
-
-    .reg_fifoen  (reg_fifoen),
-    .reg_fifoilvl(reg_fifoilvl),
-    .fifo_rd     (fifo_rd),
-
-    .fifo_data_in    (shift_data),
-    .fifo_data_update(filt_data_update),
-
-    .fifo_stat (fifo_stat),
-    .fifo_lvlup(fifo_lvlup),
-    .fifo_full (fifo_full),
-
-    .fifo_data_out(data_fifo)
+    .SYSRSTn   (SYSRSTn),
+    .value_dec (dfilt_dec_reg),
+    .clk_in    (sd_clk_in),
+    .osr_signal(osr_signal)
+  );
+  
+  // abstact filter unit (select mode signed - disable)
+  FILT #(0) filt
+  (
+    .SYSRSTn  (SYSRSTn),
+    .SYSCLK   (SYSCLK),
+    .sd_dsd_in(sd_dsd_in),
+    .sd_clk_in(sd_clk_in),
+    .osr      (osr_signal),
+    .signed_en(1'b0),
+    .structure(dfilt_st_reg),
+    .data_out (filt_data)
+  );
+  
+  // shift register data unit
+  SHIFT shift
+  (
+    .bits    (dfilt_sh_reg),
+    .data_in (filt_data),
+    .data_out(shift_data)
   );
 
+  // "first in, first out" buffer unit
+  FIFO fifo
+  (
+    .SYSRSTn    (SYSRSTn),
+    .SYSCLK     (SYSCLK),
+    .enable     (fifo_en_reg),
+    .level      (fifo_level_reg),
+    .rd         (fifo_rd_signal),
+    .data_in    (shift_data),
+    .data_update(dfilt_update_signal),
+    .stat       (fifo_stat),
+    .levelup    (fifo_levelup_signal),
+    .full       (fifo_full_signal),
+    .data_out   (fifo_data)
+  );
 
-
-  assign filt_data_out = reg_filten ? data_fifo : 32'h0000_0000;
-  
-
+  assign dfilt_data_out = dfilt_en_reg ? fifo_data : 32'h0000_0000;
       
 endmodule
  

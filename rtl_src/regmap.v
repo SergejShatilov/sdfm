@@ -1,69 +1,72 @@
-//===============================================
-// Registers map
-//===============================================
+/*
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *  @file: regmap.v
+ *
+ *  @brief: register map (bank)
+ *
+ *  @author: Shatilov Sergej
+ *
+ *  @date: 15.02.2018
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*/
 
 module REGMAP
 (
   // general
-  input  wire        EXTRSTn,           // external reset
-  input  wire        EXTCLK,            // external clock
-  input  wire        SYSRSTn,           // system reset
-  input  wire        SYSCLK,            // system clock
-  input  wire        WR,                // external signal write data
-  input  wire        RD,                // external signal read data
-  input  wire [15:0] ADDR,              // address bus
-  inout  wire [31:0] DATA,              // input/output data bus
-  output wire        IRQ,               // interrupt request
+  input  wire        EXTRSTn,   // external reset
+  input  wire        EXTCLK,    // external clock
+  input  wire        SYSRSTn,   // system reset
+  input  wire        SYSCLK,    // system clock
+  input  wire        WR,        // external signal write data
+  input  wire        RD,        // external signal read data
+  input  wire [15:0] ADDR,      // address bus
+  inout  wire [31:0] DATA,      // input/output data bus
+  output wire        IRQ,       // interrupt request
 
   // rcu
-  output reg         reg_rsten,         // system reset enable
-  output reg         reg_clken,         // system clock enable
+  output reg         rcu_rsten_reg,   // system reset enable
+  output reg         rcu_clken_reg,   // system clock enable
 
   // input controls
-  output wire [3:0]  reg_inmodx,        // input mode
-  output wire [7:0]  reg_indivx,        // ratio system clock dividing for mode 3
-  output wire [1:0]  reg_inmfiex,       // modulator failure enable
-
-  input  wire [1:0]  detect_err,        // signal detecter error clock input
+  output wire [3:0]  icu_mod_regx,      // input mode
+  output wire [7:0]  icu_div_regx,      // ratio system clock dividing for mode 3
+  output wire [1:0]  icu_mfie_regx,     // modulator failure enable
+  input  wire [1:0]  icu_err_signalx,   // signal detecter error clock input
 
   // data filters
-  input  wire [63:0] filt_data_outx,    // filter data output
-  input  wire [1:0]  filt_data_updatex, // signal filter data update
-
-  output wire [15:0] reg_filtdecx,      // data filter decimation ratio (oversampling ratio)
-  output wire [1:0]  reg_filtenx,       // data filter enable
-  output wire [1:0]  reg_filtaskx,      // data filter asknewledge enable
-  output wire [3:0]  reg_filtstx,       // data filter structure
-  output wire [9:0]  reg_filtshx,       // value shift bits for data filter
+  output wire [15:0] dfilt_dec_regx,        // data filter decimation ratio (oversampling ratio)
+  output wire [1:0]  dfilt_en_regx,         // data filter enable
+  output wire [1:0]  dfilt_ask_regx,        // data filter asknewledge enable
+  output wire [3:0]  dfilt_st_regx,         // data filter structure
+  output wire [9:0]  dfilt_sh_regx,         // value shift bits for data filter
+  input  wire [63:0] dfilt_data_outx,       // filter data output
+  input  wire [1:0]  dfilt_update_signalx,  // signal filter data update
   
   // comparators
-  output wire [15:0] reg_compdecx,      // comparator data decimation ratio (oversampling ratio)
-  output wire [1:0]  reg_compenx,       // comparator enable
-  output wire [1:0]  reg_compsenx,      // signed data comparator enable
-  output wire [3:0]  reg_compstx,       // comparator filter structure
-  output wire [1:0]  reg_compilenx,     // enable interrupt comparator for mode low threshold
-  output wire [1:0]  reg_compihenx,     // enable interrupt comparator for mode high threshold
-  output wire [1:0]  reg_complclrflgx,  // hardware clear flags comparators for mode low threshold
-  output wire [1:0]  reg_comphclrflgx,  // hardware clear flags comparators for mode high threshold
-
-  output wire [63:0] reg_compltrdx,     // comparator value low threshold
-  output wire [63:0] reg_comphtrdx,     // comparator value high threshold
-
-  input  wire [63:0] comp_data_outx,    // comparator data output
-  input  wire [1:0]  comp_data_updatex, // signal comparator data update
-
-  input  wire [1:0]  comp_data_lowx,    // signal comparator data < low threshold
-  input  wire [1:0]  comp_data_highx,   // signal comparator data >= high threshold
+  output wire [15:0] comp_dec_regx,         // comparator data decimation ratio (oversampling ratio)
+  output wire [1:0]  comp_en_regx,          // comparator enable
+  output wire [1:0]  comp_signed_regx,      // signed data comparator enable
+  output wire [3:0]  comp_st_regx,          // comparator filter structure
+  output wire [1:0]  comp_ilen_regx,        // enable interrupt comparator for mode low threshold
+  output wire [1:0]  comp_ihen_regx,        // enable interrupt comparator for mode high threshold
+  output wire [1:0]  comp_hlflgclr_regx,    // hardware clear flags comparators for mode low threshold
+  output wire [1:0]  comp_hhflgclr_regx,    // hardware clear flags comparators for mode high threshold
+  output wire [63:0] comp_ltrd_regx,        // comparator value low threshold
+  output wire [63:0] comp_htrd_regx,        // comparator value high threshold
+  input  wire [63:0] comp_data_outx,        // comparator data output
+  input  wire [1:0]  comp_update_signalx,   // signal comparator data update
+  input  wire [1:0]  comp_low_signalx,      // signal comparator data < low threshold
+  input  wire [1:0]  comp_high_signalx,     // signal comparator data >= high threshold
 
   // fifo
-  output wire [1:0]  reg_fifoenx,       // fifo enable
-  output wire [7:0]  reg_fifoilvlx,     // fifo interrupt level
-  output wire [1:0]  fifo_rdx,          // signal read FDATA register
-
-  output wire [7:0]  fifo_statx,        // status fifo
-  output wire [1:0]  fifo_lvlupx,       // signal level up fifo status
-  output wire [1:0]  fifo_fullx         // signal full fifo status
-
+  output wire [1:0]  fifo_en_regx,          // fifo enable
+  output wire [7:0]  fifo_level_regx,       // fifo interrupt level
+  output wire [1:0]  fifo_rd_signalx,       // signal read FDATA register
+  output wire [7:0]  fifo_statx,            // status fifo
+  output wire [1:0]  fifo_levelup_signalx,  // signal level up fifo status
+  output wire [1:0]  fifo_full_signalx      // signal full fifo status
 );
 
   parameter addr_device_h = 8'h07;
@@ -94,8 +97,8 @@ module REGMAP
   // master interrupt enable
   reg reg_mien;
 
-  wire [1:0] reg_fifoiffx;
-  wire [1:0] reg_fifoiflux;
+  wire [1:0] fifo_iff_regx;
+  wire [1:0] fifo_iflu_regx;
   
   
   
@@ -130,7 +133,7 @@ module REGMAP
 			        flg_af <= 1'b0;
             else if(reg_IFLGCLR_sel && WR && WDATA[i])
               flg_af <= 1'b0;
-            else if(filt_data_updatex[i])
+            else if(dfilt_update_signalx[i])
               flg_af <= 1'b1;
 
           // MFx
@@ -140,7 +143,7 @@ module REGMAP
               flg_mf <= 1'b0;
             else if(reg_IFLGCLR_sel && WR && WDATA[4 + i])
               flg_mf <= 1'b0;
-            else if(detect_err[i] && (reg_filtenx[i] || reg_compenx[i]))
+            else if(icu_err_signalx[i] && (dfilt_en_regx[i] || comp_en_regx[i]))
               flg_mf <= 1'b1;
 
 		      // LFx
@@ -150,9 +153,9 @@ module REGMAP
 			        flg_lf <= 1'b0;
             else if(reg_IFLGCLR_sel && WR && WDATA[8 + i])
               flg_lf <= 1'b0;
-			      else if(comp_data_updatex[i] && reg_complclrflgx[i])
-			        flg_lf <= comp_data_lowx[i];
-			      else if(comp_data_updatex[i] && comp_data_lowx[i])
+			      else if(comp_update_signalx[i] && comp_hlflgclr_regx[i])
+			        flg_lf <= comp_low_signalx[i];
+			      else if(comp_update_signalx[i] && comp_low_signalx[i])
 			        flg_lf <= 1'b1;
 
 		      // HFx
@@ -162,9 +165,9 @@ module REGMAP
 			        flg_hf <= 1'b0;
             else if(reg_IFLGCLR_sel && WR && WDATA[12 + i])
               flg_hf <= 1'b0;
-			      else if(comp_data_updatex[i] && reg_comphclrflgx[i])
-			        flg_hf <= comp_data_highx[i];
-			      else if(comp_data_updatex[i] && comp_data_highx[i])
+			      else if(comp_update_signalx[i] && comp_hhflgclr_regx[i])
+			        flg_hf <= comp_high_signalx[i];
+			      else if(comp_update_signalx[i] && comp_high_signalx[i])
 			        flg_hf <= 1'b1;
 
           // FFx
@@ -174,7 +177,7 @@ module REGMAP
               flg_ff <= 1'b0;
             else if(reg_IFLGCLR_sel && WR && WDATA[16 + i])
               flg_ff <= 1'b0;
-            else if(fifo_fullx[i])
+            else if(fifo_full_signalx[i])
               flg_ff <= 1'b1;
 
           // FLUx
@@ -184,7 +187,7 @@ module REGMAP
               flg_flu <= 1'b0;
             else if(reg_IFLGCLR_sel && WR && WDATA[20 + i])
               flg_flu <= 1'b0;
-            else if(fifo_lvlupx[i])
+            else if(fifo_levelup_signalx[i])
               flg_flu <= 1'b1;
 
 		      assign flg_afx [i] = flg_af;
@@ -199,18 +202,18 @@ module REGMAP
   
   // IRQF
   wire all_flags;
-  assign all_flags = (reg_filtaskx [0] && flg_afx [0]) ||
-                     (reg_filtaskx [1] && flg_afx [1]) ||
-                     (reg_inmfiex  [0] && flg_mfx [0]) ||
-                     (reg_inmfiex  [1] && flg_mfx [1]) ||
-                     (reg_compilenx[0] && flg_lfx [0]) ||
-	                   (reg_compilenx[1] && flg_lfx [1]) ||
-				             (reg_compihenx[0] && flg_hfx [0]) ||
-				             (reg_compihenx[1] && flg_hfx [1]) ||
-                     (reg_fifoiffx [0] && flg_ffx [0]) ||
-                     (reg_fifoiffx [1] && flg_ffx [1]) ||
-                     (reg_fifoiflux[0] && flg_flux[0]) ||
-                     (reg_compihenx[1] && flg_hfx [1]);
+  assign all_flags = (dfilt_ask_regx[0] && flg_afx [0]) ||
+                     (dfilt_ask_regx[1] && flg_afx [1]) ||
+                     (icu_mfie_regx [0] && flg_mfx [0]) ||
+                     (icu_mfie_regx [1] && flg_mfx [1]) ||
+                     (comp_ilen_regx[0] && flg_lfx [0]) ||
+	                   (comp_ilen_regx[1] && flg_lfx [1]) ||
+				             (comp_ihen_regx[0] && flg_hfx [0]) ||
+				             (comp_ihen_regx[1] && flg_hfx [1]) ||
+                     (fifo_iff_regx [0] && flg_ffx [0]) ||
+                     (fifo_iff_regx [1] && flg_ffx [1]) ||
+                     (fifo_iflu_regx[0] && flg_flux[0]) ||
+                     (fifo_iflu_regx[1] && flg_flux[1]);
 
   reg flg_irqf;
   always @ (negedge SYSRSTn or posedge SYSCLK)
@@ -231,27 +234,30 @@ module REGMAP
   //=                        CTL    (Control register SDFM)                                   =
   //===========================================================================================
   wire reg_CTL_sel;   // control register select
-  assign reg_CTL_sel = (ADDR[7:0] == addr_CTL) && this_device_sel; //FIXME: optimization
+  wire reg_CTL_wr;    // control register write
 
+  assign reg_CTL_sel = (ADDR[7:0] == addr_CTL) && this_device_sel; //FIXME: optimization
+  assign reg_CTL_wr  = reg_CTL_sel && WR;
+  
   // RSTEN
   always @ (negedge EXTRSTn or posedge EXTCLK)
     if(!EXTRSTn)
-      reg_rsten <= 1'b0;
-    else if(reg_CTL_sel && WR)
-      reg_rsten <= WDATA[0];
+      rcu_rsten_reg <= 1'b0;
+    else if(reg_CTL_wr)
+      rcu_rsten_reg <= WDATA[0];
       
   // CLKEN
   always @ (negedge EXTRSTn or posedge EXTCLK)
     if(!EXTRSTn)
-      reg_clken <= 1'b0;
-    else if(reg_CTL_sel && WR)
-      reg_clken <= WDATA[1];
+      rcu_clken_reg <= 1'b0;
+    else if(reg_CTL_wr)
+      rcu_clken_reg <= WDATA[1];
 	  
   // MIEN
   always @ (negedge EXTRSTn or posedge EXTCLK)
     if(!EXTRSTn)
 	  reg_mien <= 1'b0;
-	else if(reg_CTL_sel && WR)
+	else if(reg_CTL_wr)
 	  reg_mien <= WDATA[4];
 
 
@@ -262,6 +268,7 @@ module REGMAP
   //=                   INPARMx    (Input parameters registers)                               =
   //===========================================================================================
   wire [1:0] reg_INPARMx_sel;   // input parameters registers select
+  wire [1:0] reg_INPARMx_wr;    // input parameters registers write
 
   generate
     begin : REGS_INPARMx
@@ -269,34 +276,35 @@ module REGMAP
         begin : INPARM
 
           assign reg_INPARMx_sel[i] = (ADDR[7:0] == i * 4 + addr_INPARMx) && this_device_sel; //FIXME: optimization
+          assign reg_INPARMx_wr [i] = reg_INPARMx_sel[i] && WR;
           
           // MOD
-          reg [1:0] reg_inmod;
+          reg [1:0] icu_mod_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_inmod <= 2'b00;
-            else if(reg_INPARMx_sel[i] && WR)
-              reg_inmod <= WDATA[1:0];
+              icu_mod_reg <= 2'b00;
+            else if(reg_INPARMx_wr[i])
+              icu_mod_reg <= WDATA[1:0];
               
           // DIV
-          reg [3:0] reg_indiv;
+          reg [3:0] icu_div_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_indiv <= 4'h0;
-            else if(reg_INPARMx_sel[i] && WR)
-              reg_indiv <= WDATA[7:4];
+              icu_div_reg <= 4'h0;
+            else if(reg_INPARMx_wr[i])
+              icu_div_reg <= WDATA[7:4];
 
           // MFIE
-          reg reg_inmfie;
+          reg icu_mfie_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_inmfie <= 1'b0;
-            else if(reg_INPARMx_sel[i] && WR)
-              reg_inmfie <= WDATA[8];
+              icu_mfie_reg <= 1'b0;
+            else if(reg_INPARMx_wr[i])
+              icu_mfie_reg <= WDATA[8];
 
-          assign reg_inmodx [1 + i * 2 : i * 2] = reg_inmod;
-          assign reg_indivx [3 + i * 4 : i * 4] = reg_indiv;
-          assign reg_inmfiex[i] = reg_inmfie;
+          assign icu_mod_regx [1 + i * 2 : i * 2] = icu_mod_reg;
+          assign icu_div_regx [3 + i * 4 : i * 4] = icu_div_reg;
+          assign icu_mfie_regx[i] = icu_mfie_reg;
         end
     end
   endgenerate
@@ -309,6 +317,7 @@ module REGMAP
   //=                   DFPARMx    (Data filter parameters registers)                         =
   //===========================================================================================
   wire [1:0] reg_DFPARMx_sel;   // data filter parameters registers select
+  wire [1:0] reg_DFPARMx_wr;    // data filter parameters registers write
 
   generate
     begin : REGS_DFPARMx
@@ -316,52 +325,53 @@ module REGMAP
         begin : DFPARM
 
           assign reg_DFPARMx_sel[i] = (ADDR[7:0] == i * 4 + addr_DFPARMx) && this_device_sel; //FIXME: optimization
+          assign reg_DFPARMx_wr [i] = reg_DFPARMx_sel[i] && WR;
           
           // DOSR
-          reg [7:0] reg_filtdec;
+          reg [7:0] dfilt_dec_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_filtdec <= 8'h00;
-            else if(reg_DFPARMx_sel[i] && WR)
-              reg_filtdec <= WDATA[7:0];
+              dfilt_dec_reg <= 8'h00;
+            else if(reg_DFPARMx_wr[i])
+              dfilt_dec_reg <= WDATA[7:0];
               
           // FEN
-          reg reg_filten;
+          reg dfilt_en_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_filten <= 1'b0;
-            else if(reg_DFPARMx_sel[i] && WR)
-              reg_filten <= WDATA[8];
+              dfilt_en_reg <= 1'b0;
+            else if(reg_DFPARMx_wr[i])
+              dfilt_en_reg <= WDATA[8];
               
           // AEN
-          reg reg_filtask;
+          reg dfilt_ask_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_filtask <= 1'b0;
-            else if(reg_DFPARMx_sel[i] && WR)
-              reg_filtask <= WDATA[9];
+              dfilt_ask_reg <= 1'b0;
+            else if(reg_DFPARMx_wr[i])
+              dfilt_ask_reg <= WDATA[9];
               
           // ST
-          reg [1:0] reg_filtst;
+          reg [1:0] dfilt_st_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_filtst <= 2'b00;
-            else if(reg_DFPARMx_sel[i] && WR)
-              reg_filtst <= WDATA[13:12];
+              dfilt_st_reg <= 2'b00;
+            else if(reg_DFPARMx_wr[i])
+              dfilt_st_reg <= WDATA[13:12];
               
           // SH
-          reg [4:0] reg_filtsh;
+          reg [4:0] dfilt_sh_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_filtsh <= 5'h00;
-            else if(reg_DFPARMx_sel[i] && WR)
-              reg_filtsh <= WDATA[20:16];
+              dfilt_sh_reg <= 5'h00;
+            else if(reg_DFPARMx_wr[i])
+              dfilt_sh_reg <= WDATA[20:16];
               
-          assign reg_filtdecx[7 + i * 8 : i * 8] = reg_filtdec;
-          assign reg_filtenx [i] = reg_filten;
-          assign reg_filtaskx[i] = reg_filtask;
-          assign reg_filtstx [1 + i * 2 : i * 2] = reg_filtst;
-          assign reg_filtshx [4 + i * 5 : i * 5] = reg_filtsh;
+          assign dfilt_dec_regx[7 + i * 8 : i * 8] = dfilt_dec_reg;
+          assign dfilt_en_regx [i] = dfilt_en_reg;
+          assign dfilt_ask_regx[i] = dfilt_ask_reg;
+          assign dfilt_st_regx [1 + i * 2 : i * 2] = dfilt_st_reg;
+          assign dfilt_sh_regx [4 + i * 5 : i * 5] = dfilt_sh_reg;
         end
     end
   endgenerate
@@ -373,87 +383,89 @@ module REGMAP
   //===========================================================================================
   //=                   CPARMx    (Comparator parameters registers)                           =
   //===========================================================================================
-  wire [1:0] reg_CPARMx_sel;   // comparator parameters registers select
-  
+  wire [1:0] reg_CPARMx_sel;  // comparator parameters registers select
+  wire [1:0] reg_CPARMx_wr;   // comparator parameters registers write
+
   generate
     begin : REGS_CPARMx
       for(i = 0; i < 2; i = i + 1)
         begin : CPARM
 
           assign reg_CPARMx_sel[i] = (ADDR[7:0] == i * 4 + addr_CPARMx) && this_device_sel; //FIXME: optimization
+          assign reg_CPARMx_wr [i] = reg_CPARMx_sel[i] && WR;
           
           // DOSR
-          reg [7:0] reg_compdec;
+          reg [7:0] comp_dec_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_compdec <= 8'h00;
-            else if(reg_CPARMx_sel[i] && WR)
-              reg_compdec <= WDATA[7:0];
+              comp_dec_reg <= 8'h00;
+            else if(reg_CPARMx_wr[i])
+              comp_dec_reg <= WDATA[7:0];
               
           // CEN
-          reg reg_compen;
+          reg comp_en_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_compen <= 1'b0;
-            else if(reg_CPARMx_sel[i] && WR)
-              reg_compen <= WDATA[8];
+              comp_en_reg <= 1'b0;
+            else if(reg_CPARMx_wr[i])
+              comp_en_reg <= WDATA[8];
 			  
 		      // SEN
-          reg reg_compsen;
+          reg comp_signed_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_compsen <= 1'b0;
-            else if(reg_CPARMx_sel[i] && WR)
-              reg_compsen <= WDATA[9];
+              comp_signed_reg <= 1'b0;
+            else if(reg_CPARMx_wr[i])
+              comp_signed_reg <= WDATA[9];
               
 		      // ST
-          reg [1:0] reg_compst;
+          reg [1:0] comp_st_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_compst <= 2'b00;
-            else if(reg_CPARMx_sel[i] && WR)
-              reg_compst <= WDATA[13:12];
+              comp_st_reg <= 2'b00;
+            else if(reg_CPARMx_wr[i])
+              comp_st_reg <= WDATA[13:12];
 			  
 		      // ILEN
-          reg reg_compilen;
+          reg comp_ilen_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_compilen <= 1'b0;
-            else if(reg_CPARMx_sel[i] && WR)
-              reg_compilen <= WDATA[16];
+              comp_ilen_reg <= 1'b0;
+            else if(reg_CPARMx_wr[i])
+              comp_ilen_reg <= WDATA[16];
 			  
 		      // IHEN
-          reg reg_compihen;
+          reg comp_ihen_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_compihen <= 1'b0;
-            else if(reg_CPARMx_sel[i] && WR)
-              reg_compihen <= WDATA[17];
+              comp_ihen_reg <= 1'b0;
+            else if(reg_CPARMx_wr[i])
+              comp_ihen_reg <= WDATA[17];
 			  
-		      // LCLRFLG
-          reg reg_complclrflg;
+		      // HLFLGCLR
+          reg comp_hlflgclr_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_complclrflg <= 1'b0;
-            else if(reg_CPARMx_sel[i] && WR)
-              reg_complclrflg <= WDATA[20];
+              comp_hlflgclr_reg <= 1'b0;
+            else if(reg_CPARMx_wr[i])
+              comp_hlflgclr_reg <= WDATA[20];
 			  
-          // HCLRFLG
-          reg reg_comphclrflg;
+          // HHFLGCLR
+          reg comp_hhflgclr_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_comphclrflg <= 1'b0;
-            else if(reg_CPARMx_sel[i] && WR)
-              reg_comphclrflg <= WDATA[21];
+              comp_hhflgclr_reg <= 1'b0;
+            else if(reg_CPARMx_wr[i])
+              comp_hhflgclr_reg <= WDATA[21];
               
-          assign reg_compdecx    [7 + i * 8 : i * 8] = reg_compdec;
-          assign reg_compenx     [i] = reg_compen;
-		      assign reg_compsenx    [i] = reg_compsen;
-		      assign reg_compstx     [1 + i * 2 : i * 2] = reg_compst;
-		      assign reg_compilenx   [i] = reg_compilen;
-          assign reg_compihenx   [i] = reg_compihen;
-		      assign reg_complclrflgx[i] = reg_complclrflg;
-          assign reg_comphclrflgx[i] = reg_comphclrflg;
+          assign comp_dec_regx     [7 + i * 8 : i * 8] = comp_dec_reg;
+          assign comp_en_regx      [i] = comp_en_reg;
+		      assign comp_signed_regx  [i] = comp_signed_reg;
+		      assign comp_st_regx      [1 + i * 2 : i * 2] = comp_st_reg;
+		      assign comp_ilen_regx    [i] = comp_ilen_reg;
+          assign comp_ihen_regx    [i] = comp_ihen_reg;
+		      assign comp_hlflgclr_regx[i] = comp_hlflgclr_reg;
+          assign comp_hhflgclr_regx[i] = comp_hhflgclr_reg;
           
         end
     end
@@ -466,7 +478,8 @@ module REGMAP
   //===========================================================================================
   //=                   CMPLx    (Comparator value low threshold)                             =
   //===========================================================================================
-  wire [1:0] reg_CMPLx_sel;   // comparator value low threshold
+  wire [1:0] reg_CMPLx_sel;   // comparator value low threshold registers select
+  wire [1:0] reg_CMPLx_wr;    // comparator value low threshold registers write
   
   generate
     begin : REGS_CMPLx
@@ -474,15 +487,16 @@ module REGMAP
         begin : CMPL
 
           assign reg_CMPLx_sel[i] = (ADDR[7:0] == i * 4 + addr_CMPLx) && this_device_sel; //FIXME: optimization
+          assign reg_CMPLx_wr [i] = reg_CMPLx_sel[i] && WR;
           
-          reg [31:0] reg_compltrd;
+          reg [31:0] comp_ltrd_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_compltrd <= 32'h0000_0000;
-            else if(reg_CMPLx_sel[i] && WR)
-              reg_compltrd <= WDATA;
+              comp_ltrd_reg <= 32'h0000_0000;
+            else if(reg_CMPLx_wr[i])
+              comp_ltrd_reg <= WDATA;
 
-          assign reg_compltrdx[31 + i * 32 : i * 32] = reg_compltrd;
+          assign comp_ltrd_regx[31 + i * 32 : i * 32] = comp_ltrd_reg;
         end
     end
   endgenerate
@@ -494,7 +508,8 @@ module REGMAP
   //===========================================================================================
   //=                   CMPHx    (Comparator value high threshold)                            =
   //===========================================================================================
-  wire [1:0] reg_CMPHx_sel;   // comparator value high threshold
+  wire [1:0] reg_CMPHx_sel;   // comparator value high threshold registers select
+  wire [1:0] reg_CMPHx_wr;    // comparator value high threshold registers write
   
   generate
     begin : REGS_CMPHx
@@ -502,15 +517,16 @@ module REGMAP
         begin : CMPH
 
           assign reg_CMPHx_sel[i] = (ADDR[7:0] == i * 4 + addr_CMPHx) && this_device_sel; //FIXME: optimization
+          assign reg_CMPHx_wr [i] = reg_CMPHx_sel[i] && WR;
           
-          reg [31:0] reg_comphtrd;
+          reg [31:0] comp_htrd_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_comphtrd <= 32'h0000_0000;
-            else if(reg_CMPHx_sel[i] && WR)
-              reg_comphtrd <= WDATA;
+              comp_htrd_reg <= 32'h0000_0000;
+            else if(reg_CMPHx_wr[i])
+              comp_htrd_reg <= WDATA;
 
-          assign reg_comphtrdx[31 + i * 32 : i * 32] = reg_comphtrd;
+          assign comp_htrd_regx[31 + i * 32 : i * 32] = comp_htrd_reg;
         end
     end
   endgenerate
@@ -523,7 +539,7 @@ module REGMAP
   //=                   FCTLx      (Fifo parameters registers)                                =
   //===========================================================================================
   wire [1:0] reg_FCTLx_sel;   // fifo parameters registers select
-  wire [7:0] reg_fifostatx;
+  wire [1:0] reg_FCTLx_wr;    // fifo parameters registers write
 
   generate
     begin : REGS_FCTLx
@@ -531,43 +547,44 @@ module REGMAP
         begin : FCTL
 
           assign reg_FCTLx_sel[i] = (ADDR[7:0] == i * 4 + addr_FCTLx) && this_device_sel; //FIXME: optimization
+          assign reg_FCTLx_wr [i] = reg_FCTLx_wr[i] && WR;
           
           // ILVL
-          reg [3:0] reg_fifoilvl;
+          reg [3:0] fifo_level_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_fifoilvl <= 4'b1111;
-            else if(reg_FCTLx_sel[i] && WR)
-              reg_fifoilvl <= WDATA[7:4];
+              fifo_level_reg <= 4'b1111;
+            else if(reg_FCTLx_wr[i])
+              fifo_level_reg <= WDATA[7:4];
               
           // EN
-          reg reg_fifoen;
+          reg fifo_en_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_fifoen <= 1'b0;
-            else if(reg_FCTLx_sel[i] && WR)
-              reg_fifoen <= WDATA[8];
+              fifo_en_reg <= 1'b0;
+            else if(reg_FCTLx_wr[i])
+              fifo_en_reg <= WDATA[8];
 
           // IFF
-          reg reg_fifoiff;
+          reg fifo_iff_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_fifoiff <= 1'b0;
-            else if(reg_FCTLx_sel[i] && WR)
-              reg_fifoiff <= WDATA[12];
+              fifo_iff_reg <= 1'b0;
+            else if(reg_FCTLx_wr[i])
+              fifo_iff_reg <= WDATA[12];
 
           // IFLU
-          reg reg_fifoiflu;
+          reg fifo_iflu_reg;
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_fifoiflu <= 1'b0;
-            else if(reg_FCTLx_sel[i] && WR)
-              reg_fifoiflu <= WDATA[13];
+              fifo_iflu_reg <= 1'b0;
+            else if(reg_FCTLx_wr[i])
+              fifo_iflu_reg <= WDATA[13];
 
-          assign reg_fifoilvlx[3 + i * 4 : i * 4] = reg_fifoilvl;
-          assign reg_fifoenx  [i] = reg_fifoen;
-          assign reg_fifoiffx [i] = reg_fifoiff;
-          assign reg_fifoiflux[i] = reg_fifoiflu;
+          assign fifo_level_regx[3 + i * 4 : i * 4] = fifo_level_reg;
+          assign fifo_en_regx   [i] = fifo_en_reg;
+          assign fifo_iff_regx  [i] = fifo_iff_reg;
+          assign fifo_iflu_regx [i] = fifo_iflu_reg;
         end
     end
   endgenerate
@@ -580,7 +597,8 @@ module REGMAP
   //=                       FDATAx    (filter data registers)                                 =
   //===========================================================================================
   wire [1:0]  reg_FDATAx_sel;   // filter data registers select
-  wire [63:0] reg_FDATAx;
+  wire [1:0]  reg_FDATAx_rd;    // filter data registers read
+  wire [63:0] dfilt_data_regx;
   
   generate
     begin : REGS_FDATAx
@@ -588,18 +606,19 @@ module REGMAP
         begin : FDATA
 
           assign reg_FDATAx_sel[i] = (ADDR[7:0] == i * 4 + addr_FDATAx) && this_device_sel; //FIXME: optimization
+          assign reg_FDATAx_rd [i] = reg_FDATAx_sel[i] && RD;
           
-          reg [31:0] reg_FDATA;
+          reg [31:0] dfilt_data_reg;
           
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_FDATA <= 32'h0000_0000;
-            else if(filt_data_updatex[i])
-              reg_FDATA <= filt_data_outx[31 + i * 32 : i * 32];
+              dfilt_data_reg <= 32'h0000_0000;
+            else if(dfilt_update_signalx[i])
+              dfilt_data_reg <= dfilt_data_outx[31 + i * 32 : i * 32];
          
-            assign reg_FDATAx[31 + i * 32 : i * 32] = reg_FDATA;
+            assign dfilt_data_regx[31 + i * 32 : i * 32] = dfilt_data_reg;
 
-            assign fifo_rdx[i] = reg_FDATAx_sel[i] && RD;
+            assign fifo_rd_signalx[i] = reg_FDATAx_rd[i];
         end
     end
   endgenerate
@@ -609,10 +628,10 @@ module REGMAP
   
   
   //===========================================================================================
-  //=                       CDATAx    (comparator data registers)                                 =
+  //=                       CDATAx    (comparator data registers)                             =
   //===========================================================================================
   wire [1:0]  reg_CDATAx_sel;   // comparator data registers select
-  wire [63:0] reg_CDATAx;
+  wire [63:0] comp_data_regx;
   
   generate
     begin : REGS_CDATAx
@@ -621,15 +640,15 @@ module REGMAP
 
           assign reg_CDATAx_sel[i] = (ADDR[7:0] == i * 4 + addr_CDATAx) && this_device_sel; //FIXME: optimization
           
-          reg [31:0] reg_CDATA;
+          reg [31:0] comp_data_reg;
           
           always @ (negedge SYSRSTn or posedge SYSCLK)
             if(!SYSRSTn)
-              reg_CDATA <= 32'h0000_0000;
-            else if(comp_data_updatex[i])
-              reg_CDATA <= comp_data_outx[31 + i * 32 : i * 32];
+              comp_data_reg <= 32'h0000_0000;
+            else if(comp_update_signalx[i])
+              comp_data_reg <= comp_data_outx[31 + i * 32 : i * 32];
          
-            assign reg_CDATAx[31 + i * 32 : i * 32] = reg_CDATA;
+            assign comp_data_regx[31 + i * 32 : i * 32] = comp_data_reg;
         end
     end
   endgenerate
@@ -647,54 +666,54 @@ module REGMAP
   
   
   
-				         reg_CTL_sel ? {{30{1'b0}}, reg_clken, reg_rsten} :
+				         reg_CTL_sel ? {{30{1'b0}}, rcu_clken_reg, rcu_rsten_reg} :
 
-                 reg_INPARMx_sel[0] ? {{23{1'b0}}, reg_inmfiex[0], reg_indivx[3:0], 2'b00, reg_inmodx[1:0]} :
+                 reg_INPARMx_sel[0] ? {{23{1'b0}}, icu_mfie_regx[0], icu_div_regx[3:0], 2'b00, icu_mod_regx[1:0]} :
   
   /* 31-24 */    reg_DFPARMx_sel[0] ? {8'h00,
-  /* 24-16 */						               3'h0, reg_filtshx[4:0],
-  /* 15-08 */						               2'b00, reg_filtstx[1:0], 2'b00, reg_filtaskx[0], reg_filtenx[0],
-  /* 07-00 */						               reg_filtdecx[7:0]} :
+  /* 24-16 */						               3'h0, dfilt_sh_regx[4:0],
+  /* 15-08 */						               2'b00, dfilt_st_regx[1:0], 2'b00, dfilt_ask_regx[0], dfilt_en_regx[0],
+  /* 07-00 */						               dfilt_dec_regx[7:0]} :
 									   
   /* 31-24 */    reg_CPARMx_sel[0] ? {8'h00,
-  /* 23-16 */						              2'b00, reg_comphclrflgx[0], reg_complclrflgx[0], 2'b00, reg_compihenx[0], reg_compilenx[0],
-  /* 15-08 */						              2'b00, reg_compstx[1:0], 2'b00, reg_compsenx[0], reg_compenx[0],
-  /* 07-00 */						              reg_compdecx[7:0]} :
+  /* 23-16 */						              2'b00, comp_hhflgclr_regx[0], comp_hlflgclr_regx[0], 2'b00, comp_ihen_regx[0], comp_ihen_regx[0],
+  /* 15-08 */						              2'b00, comp_st_regx[1:0], 2'b00, comp_signed_regx[0], comp_en_regx[0],
+  /* 07-00 */						              comp_dec_regx[7:0]} :
 	
-				         reg_CMPLx_sel[0] ? reg_compltrdx[31:0] :
+				         reg_CMPLx_sel[0] ? comp_ltrd_regx[31:0] :
 				 
-				         reg_CMPHx_sel[0] ? reg_comphtrdx[31:0] :
+				         reg_CMPHx_sel[0] ? comp_htrd_regx[31:0] :
 
-                 reg_FCTLx_sel[0] ? {{18{1'b0}}, reg_fifoiflux[0], reg_fifoiffx[0], 3'b00, reg_fifoenx[0], reg_fifoilvlx[3:0], fifo_statx[3:0]} :
+                 reg_FCTLx_sel[0] ? {{18{1'b0}}, fifo_iflu_regx[0], fifo_iff_regx[0], 3'b00, fifo_en_regx[0], fifo_level_regx[3:0], fifo_statx[3:0]} :
 	
-                 reg_FDATAx_sel[0]  ? reg_FDATAx[31:0] :
+                 reg_FDATAx_sel[0]  ? dfilt_data_regx[31:0] :
 				 
-				         reg_CDATAx_sel[0] ? reg_CDATAx[31:0] :
+				         reg_CDATAx_sel[0] ? comp_data_regx[31:0] :
 
 
 
                  
-				         reg_INPARMx_sel[1] ? {{23{1'b0}}, reg_inmfiex[1], reg_indivx[7:4], 2'b00, reg_inmodx[3:2]} :
+				         reg_INPARMx_sel[1] ? {{23{1'b0}}, icu_mfie_regx[1], icu_div_regx[7:4], 2'b00, icu_mod_regx[3:2]} :
 				 
   /* 31-24 */    reg_DFPARMx_sel[1] ? {8'h00,
-  /* 23-16 */  						             3'h0, reg_filtshx[9:5],
-  /* 15-08 */                          2'b00, reg_filtstx[3:2], 2'b00, reg_filtaskx[1], reg_filtenx[1],
-  /* 07-00 */                          reg_filtdecx[15:8]} :
+  /* 23-16 */  						             3'h0, dfilt_sh_regx[9:5],
+  /* 15-08 */                          2'b00, dfilt_st_regx[3:2], 2'b00, dfilt_ask_regx[1], dfilt_en_regx[1],
+  /* 07-00 */                          dfilt_dec_regx[15:8]} :
 
   /* 31-24 */    reg_CPARMx_sel[1] ? {8'h00,
-  /* 23-16 */						              2'b00, reg_comphclrflgx[1], reg_complclrflgx[1], 2'b00, reg_compihenx[1], reg_compilenx[1],
-  /* 15-08 */						              2'b00, reg_compstx[3:2], 2'b00, reg_compsenx[1], reg_compenx[1],
-  /* 07-00 */						              reg_compdecx[15:8]} :
+  /* 23-16 */						              2'b00, comp_hhflgclr_regx[1], comp_hlflgclr_regx[1], 2'b00, comp_ihen_regx[1], comp_ilen_regx[1],
+  /* 15-08 */						              2'b00, comp_st_regx[3:2], 2'b00, comp_signed_regx[1], comp_en_regx[1],
+  /* 07-00 */						              comp_dec_regx[15:8]} :
 
-  				       reg_CMPLx_sel[1] ? reg_compltrdx[63:32] :
+  				       reg_CMPLx_sel[1] ? comp_ltrd_regx[63:32] :
 				 
-				         reg_CMPHx_sel[1] ? reg_comphtrdx[63:32] :
+				         reg_CMPHx_sel[1] ? comp_htrd_regx[63:32] :
 
-                 reg_FCTLx_sel[1] ? {{18{1'b0}}, reg_fifoiflux[1], reg_fifoiffx[1], 3'b00, reg_fifoenx[1], reg_fifoilvlx[7:4], fifo_statx[7:4]} :
+                 reg_FCTLx_sel[1] ? {{18{1'b0}}, fifo_iflu_regx[1], fifo_iff_regx[1], 3'b00, fifo_en_regx[1], fifo_level_regx[7:4], fifo_statx[7:4]} :
   
-			           reg_FDATAx_sel[1]  ? reg_FDATAx[63:32] :
+			           reg_FDATAx_sel[1]  ? dfilt_data_regx[63:32] :
 				 
-				         reg_CDATAx_sel[1] ? reg_CDATAx[63:32] :
+				         reg_CDATAx_sel[1] ? comp_data_regx[63:32] :
 				 
                  {32{1'b0}};
 
